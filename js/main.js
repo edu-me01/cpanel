@@ -80,8 +80,8 @@ class App {
     }
 
     handleLogout() {
-        if (auth && typeof auth.logout === 'function') {
-            auth.logout();
+        if (auth && typeof auth.handleLogout === 'function') {
+            auth.handleLogout();
         } else {
             console.warn('Auth module not properly initialized');
         }

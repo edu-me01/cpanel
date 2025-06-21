@@ -20,7 +20,22 @@ class StudentsManager {
     loadStudents() {
         // In production, this would be an API call
         const storedStudents = localStorage.getItem('students');
-        this.students = storedStudents ? JSON.parse(storedStudents) : [];
+        if (storedStudents) {
+            this.students = JSON.parse(storedStudents);
+        } else {
+            // Add some default students if none are in storage
+            this.students = [
+                {
+                    id: 'STU1672532600000-ABCDE',
+                    fullName: 'Test Student',
+                    email: 'student@school.com',
+                    password: 'student123',
+                    active: true,
+                    createdAt: new Date().toISOString()
+                }
+            ];
+            this.saveStudents();
+        }
         this.renderStudents();
     }
 

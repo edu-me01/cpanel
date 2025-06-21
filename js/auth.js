@@ -127,6 +127,7 @@ class Auth {
 
     async handleLogin(event) {
         event.preventDefault();
+        console.log('handleLogin triggered'); // Debug log
         
         const form = event.target;
         const formData = new FormData(form);
@@ -134,6 +135,9 @@ class Auth {
         try {
             const email = formData.get('email');
             const password = formData.get('password');
+            console.log('Attempting login with:', { email, password }); // Debug log
+            console.log('Email length:', email.length); // Debug log
+            console.log('Email char codes:', Array.from(email).map(c => c.charCodeAt(0))); // Debug log
             
             if (!email || !password) {
                 this.showNotification('Please fill in all fields', 'error');
@@ -141,7 +145,13 @@ class Auth {
             }
 
             // Check if it's an admin login
+            console.log('Checking admin login with:', { email, password }); // Debug log
+            console.log('Expected admin email:', 'admin@school.com'); // Debug log
+            console.log('Expected admin password:', 'admin123'); // Debug log
+            console.log('Email match:', email === 'admin@school.com'); // Debug log
+            console.log('Password match:', password === 'admin123'); // Debug log
             if (email === 'admin@school.com' && password === 'admin123') {
+                console.log('Admin login successful'); // Debug log
                 this.userData = {
                     id: 'admin',
                     name: 'Admin',
@@ -161,12 +171,14 @@ class Auth {
                 this.showNotification('Welcome back, Admin!', 'success');
                 return;
             }
+            console.log('Not an admin, checking student login'); // Debug log
 
             // Check student login
             const students = JSON.parse(localStorage.getItem('students') || '[]');
             const student = students.find(s => s.email === email && s.password === password);
 
             if (student) {
+                console.log('Student login successful for:', student.fullName); // Debug log
                 this.userData = {
                     id: student.id,
                     name: student.fullName,
@@ -185,9 +197,11 @@ class Auth {
                 this.showDashboard();
                 this.showNotification('Welcome back, ' + student.fullName + '!', 'success');
             } else {
+                console.log('Invalid email or password'); // Debug log
                 throw new Error('Invalid email or password');
             }
         } catch (error) {
+            console.error('Login error:', error); // Debug log
             this.showNotification(error.message, 'error');
         }
     }
