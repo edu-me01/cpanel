@@ -10,15 +10,94 @@ class TasksManager {
         this.loadTasks();
 
         // Add event listeners
-        document.getElementById('addTaskForm').addEventListener('submit', (e) => this.handleAddTask(e));
+        const addTaskForm = document.getElementById('addTaskForm');
+        if (addTaskForm) {
+            addTaskForm.addEventListener('submit', (e) => this.handleAddTask(e));
+        }
         
         // Initialize search functionality
         const searchInput = document.querySelector('#tasksSection input[type="text"]');
-        searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
+        if (searchInput) {
+            searchInput.addEventListener('input', (e) => this.handleSearch(e.target.value));
+        }
 
         // Initialize filter functionality
         const filterSelect = document.querySelector('#tasksSection select');
-        filterSelect.addEventListener('change', (e) => this.handleFilter(e.target.value));
+        if (filterSelect) {
+            filterSelect.addEventListener('change', (e) => this.handleFilter(e.target.value));
+        }
+
+        // Initialize task configuration if available
+        if (typeof taskConfig !== 'undefined') {
+            this.initTaskConfig();
+        }
+    }
+
+    initTaskConfig() {
+        // Add task configuration section to the tasks card
+        const tasksCard = document.querySelector('#tasksSection .card-body');
+        if (tasksCard) {
+            const configSection = document.createElement('div');
+            configSection.className = 'mb-3';
+            configSection.innerHTML = `
+                <h6>Task Configuration</h6>
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Day</th>
+                                <th>Title</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="taskConfigBody"></tbody>
+                    </table>
+                </div>
+            `;
+            tasksCard.insertBefore(configSection, tasksCard.firstChild);
+            this.renderTaskConfig();
+        }
+    }
+
+    renderTaskConfig() {
+        const tbody = document.getElementById('taskConfigBody');
+        if (!tbody || typeof taskConfig === 'undefined') return;
+
+        tbody.innerHTML = '';
+
+        Object.entries(taskConfig.tasks).forEach(([day, config]) => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${day}</td>
+                <td>${config.title}</td>
+                <td>
+                    <span class="badge bg-${config.enabled ? 'success' : 'danger'}">
+                        ${config.enabled ? 'Enabled' : 'Disabled'}
+                    </span>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-${config.enabled ? 'warning' : 'success'}" 
+                            onclick="tasksManager.toggleTaskConfig('${day}')">
+                        <i class="fas fa-${config.enabled ? 'ban' : 'check'}"></i>
+                        ${config.enabled ? 'Disable' : 'Enable'}
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
+
+    toggleTaskConfig(day) {
+        if (typeof taskConfig === 'undefined') return false;
+        
+        if (taskConfig.toggleTask(day)) {
+            taskConfig.saveConfig();
+            this.renderTaskConfig();
+            this.renderTasks();
+            return true;
+        }
+        return false;
     }
 
     loadTasks() {
@@ -35,9 +114,20 @@ class TasksManager {
 
     renderTasks(tasks = this.tasks) {
         const tbody = document.getElementById('tasksTableBody');
+        if (!tbody) return;
+
         tbody.innerHTML = '';
 
-        tasks.forEach(task => {
+        // Filter tasks based on configuration if available
+        let filteredTasks = tasks;
+        if (typeof taskConfig !== 'undefined') {
+            filteredTasks = tasks.filter(task => {
+                const day = task.day || 'day1'; // Default to day1 if not specified
+                return taskConfig.tasks[day]?.enabled;
+            });
+        }
+
+        filteredTasks.forEach(task => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${task.id}</td>
