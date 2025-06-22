@@ -63,7 +63,7 @@ class Auth {
         } else {
             // If no dashboard element, redirect to main page
             if (window.location.pathname.includes('login-test.html')) {
-                window.location.href = 'index.html';
+                window.location.href = 'Admin-dashboard.html';
             }
         }
 
