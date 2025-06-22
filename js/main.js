@@ -5,7 +5,7 @@ class TaskManager {
         this.currentSection = 'dashboard';
         this.isSidebarCollapsed = false;
         this.isNotificationsOpen = false;
-        this.init();
+            this.init();
     }
 
     init() {
@@ -143,7 +143,7 @@ class TaskManager {
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.remove('active');
         });
-
+        
         // Show target section
         const targetSection = document.getElementById(section + 'Section');
         if (targetSection) {
@@ -665,7 +665,7 @@ class TaskManager {
             this.showNotification('Passwords do not match', 'error');
             return;
         }
-
+        
         // This will be handled by students.js
         if (typeof addStudent === 'function') {
             addStudent(studentData);
