@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager cPanel - Modern Demo</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+<body class="modern-theme">
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner"></div>
+            <h3>Task Manager</h3>
+            <p>Loading your workspace...</p>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div class="dashboard-container" id="dashboard">
+        <!-- Top Navigation Bar -->
+        <nav class="top-navbar">
+            <div class="navbar-left">
+                <button class="sidebar-toggle" id="sidebarToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="brand">
+                    <i class="fas fa-tasks"></i>
+                    <span>Task Manager</span>
+                </div>
+            </div>
+            <div class="navbar-center">
+                <div class="breadcrumb-nav">
+                    <span id="currentSection">Dashboard</span>
+                </div>
+            </div>
+            <div class="navbar-right">
+                <div class="nav-actions">
+                    <button class="action-btn" id="notificationsBtn">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                    <button class="action-btn" id="themeToggle">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="user-menu" id="userInfo">
+                        <div class="user-avatar">JD</div>
+                        <div class="user-info">
+                            <div class="user-name">John Doe</div>
+                            <div class="user-role">Administrator</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-content">
+                <div class="sidebar-nav">
+                    <a href="#dashboardSection" class="nav-item active" data-section="dashboard">
+                        <div class="nav-icon">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <span>Dashboard</span>
+                    </a>
+                    <a href="#studentsSection" class="nav-item" data-section="students">
+                        <div class="nav-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <span>Students</span>
+                    </a>
+                    <a href="#tasksSection" class="nav-item" data-section="tasks">
+                        <div class="nav-icon">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <span>Tasks</span>
+                    </a>
+                    <a href="#attendanceSection" class="nav-item" data-section="attendance">
+                        <div class="nav-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <span>Attendance</span>
+                    </a>
+                    <a href="#submissionsSection" class="nav-item" data-section="submissions">
+                        <div class="nav-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <span>Submissions</span>
+                    </a>
+                    <a href="#analyticsSection" class="nav-item" data-section="analytics">
+                        <div class="nav-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <span>Analytics</span>
+                    </a>
+                    <a href="#settingsSection" class="nav-item" data-section="settings">
+                        <div class="nav-icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <span>Settings</span>
+                    </a>
+                </div>
+                <div class="sidebar-footer">
+                    <a href="#" class="nav-item" id="logoutBtn">
+                        <div class="nav-icon">
+                            <i class="fas fa-sign-out-alt"></i>
+                        </div>
+                        <span>Logout</span>
+                    </a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Dashboard Overview Section -->
+            <div id="dashboardSection" class="section active">
+                <div class="section-header">
+                    <div class="header-content">
+                        <h1>Dashboard Overview</h1>
+                        <p>Welcome back! Here's what's happening today.</p>
+                    </div>
+                </div>
+                
+                <!-- Stats Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon students">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="totalStudents">156</h3>
+                            <p>Total Students</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon tasks">
+                            <i class="fas fa-tasks"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="activeTasks">23</h3>
+                            <p>Active Tasks</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon attendance">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="todayAttendance">142</h3>
+                            <p>Today's Attendance</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon submissions">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3 id="pendingSubmissions">8</h3>
+                            <p>Pending Submissions</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <h3>Quick Actions</h3>
+                    <div class="actions-grid">
+                        <button class="action-card" onclick="showNotification('Task creation modal opened', 'info')">
+                            <i class="fas fa-plus"></i>
+                            <span>Add Task</span>
+                        </button>
+                        <button class="action-card" onclick="showNotification('Attendance session opened', 'success')">
+                            <i class="fas fa-door-open"></i>
+                            <span>Open Attendance</span>
+                        </button>
+                        <button class="action-card" onclick="showNotification('Student registration modal opened', 'info')">
+                            <i class="fas fa-user-plus"></i>
+                            <span>Add Student</span>
+                        </button>
+                        <button class="action-card" onclick="showNotification('Grading modal opened', 'info')">
+                            <i class="fas fa-star"></i>
+                            <span>Grade Submission</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="recent-activity">
+                    <h3>Recent Activity</h3>
+                    <div class="activity-list" id="activityList">
+                        <div class="activity-item">
+                            <div class="activity-icon task">
+                                <i class="fas fa-tasks"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p>New task "React Fundamentals" assigned</p>
+                                <span class="activity-time">2 minutes ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon attendance">
+                                <i class="fas fa-calendar-check"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p>John Doe marked present</p>
+                                <span class="activity-time">5 minutes ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon submission">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p>Assignment submitted by Jane Smith</p>
+                                <span class="activity-time">10 minutes ago</span>
+                            </div>
+                        </div>
+                        <div class="activity-item">
+                            <div class="activity-icon student">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <div class="activity-content">
+                                <p>New student registered: Mike Johnson</p>
+                                <span class="activity-time">15 minutes ago</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Students Section -->
+            <div id="studentsSection" class="section">
+                <div class="section-header">
+                    <div class="header-content">
+                        <h1>Students Management</h1>
+                        <p>Manage student accounts and information</p>
+                    </div>
+                    <button class="btn btn-primary modern-btn" onclick="showNotification('Add student modal opened', 'info')">
+                        <i class="fas fa-plus"></i> Add Student
+                    </button>
+                </div>
+                
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="search-filters">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="Search students..." id="studentSearch">
+                            </div>
+                            <div class="filters">
+                                <select class="form-select" id="studentStatusFilter">
+                                    <option value="all">All Status</option>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Email</th>
+                                        <th>Status</th>
+                                        <th>Last Active</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-avatar me-3">JD</div>
+                                                <div>
+                                                    <div class="fw-bold">John Doe</div>
+                                                    <small class="text-muted">ID: ST001</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>john.doe@example.com</td>
+                                        <td><span class="status-badge status-active">Active</span></td>
+                                        <td>2 hours ago</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-1">Edit</button>
+                                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-avatar me-3">JS</div>
+                                                <div>
+                                                    <div class="fw-bold">Jane Smith</div>
+                                                    <small class="text-muted">ID: ST002</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>jane.smith@example.com</td>
+                                        <td><span class="status-badge status-active">Active</span></td>
+                                        <td>1 hour ago</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-1">Edit</button>
+                                            <button class="btn btn-sm btn-outline-danger">Delete</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tasks Section -->
+            <div id="tasksSection" class="section">
+                <div class="section-header">
+                    <div class="header-content">
+                        <h1>Task Management</h1>
+                        <p>Create and manage tasks for students</p>
+                    </div>
+                    <button class="btn btn-primary modern-btn" onclick="showNotification('Add task modal opened', 'info')">
+                        <i class="fas fa-plus"></i> Add Task
+                    </button>
+                </div>
+                
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="search-filters">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="Search tasks..." id="taskSearch">
+                            </div>
+                            <div class="filters">
+                                <select class="form-select" id="taskStatusFilter">
+                                    <option value="all">All Tasks</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="in-progress">In Progress</option>
+                                    <option value="completed">Completed</option>
+                                </select>
+                                <select class="form-select" id="taskPriorityFilter">
+                                    <option value="all">All Priorities</option>
+                                    <option value="high">High</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Task</th>
+                                        <th>Description</th>
+                                        <th>Due Date</th>
+                                        <th>Priority</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold">React Fundamentals</div>
+                                            <small class="text-muted">Task #001</small>
+                                        </td>
+                                        <td>Learn React basics and create a simple component</td>
+                                        <td>Dec 15, 2024</td>
+                                        <td><span class="status-badge status-pending">High</span></td>
+                                        <td><span class="status-badge status-pending">Pending</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-1">Edit</button>
+                                            <button class="btn btn-sm btn-outline-success">Complete</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="fw-bold">JavaScript ES6</div>
+                                            <small class="text-muted">Task #002</small>
+                                        </td>
+                                        <td>Study ES6 features and complete exercises</td>
+                                        <td>Dec 20, 2024</td>
+                                        <td><span class="status-badge status-pending">Medium</span></td>
+                                        <td><span class="status-badge status-completed">Completed</span></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary me-1">Edit</button>
+                                            <button class="btn btn-sm btn-outline-info">View</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Attendance Section -->
+            <div id="attendanceSection" class="section">
+                <div class="section-header">
+                    <div class="header-content">
+                        <h1>Attendance Management</h1>
+                        <p>Track student attendance and manage sessions</p>
+                    </div>
+                    <div class="header-actions">
+                        <button class="btn btn-success modern-btn" onclick="showNotification('Attendance session opened', 'success')">
+                            <i class="fas fa-door-open"></i> Open Attendance
+                        </button>
+                        <button class="btn btn-danger modern-btn" onclick="showNotification('Attendance session closed', 'warning')">
+                            <i class="fas fa-door-closed"></i> Close Attendance
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="attendance-overview">
+                    <div class="status-card">
+                        <div class="status-indicator" id="attendanceStatusIndicator">
+                            <i class="fas fa-circle"></i>
+                            <span id="attendanceStatus">Open</span>
+                        </div>
+                        <div class="status-actions">
+                            <div class="form-group">
+                                <label>Date</label>
+                                <input type="date" id="attendanceDate" class="form-control" value="2024-12-10">
+                            </div>
+                            <div class="form-group">
+                                <label>Session</label>
+                                <select id="attendanceSession" class="form-control">
+                                    <option value="morning">Morning</option>
+                                    <option value="afternoon" selected>Afternoon</option>
+                                    <option value="evening">Evening</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3>Today's Attendance</h3>
+                        <button class="btn btn-outline-primary btn-sm" onclick="showNotification('Mark attendance modal opened', 'info')">
+                            <i class="fas fa-plus"></i> Mark Attendance
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Status</th>
+                                        <th>Time</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-avatar me-3">JD</div>
+                                                <div>John Doe</div>
+                                            </div>
+                                        </td>
+                                        <td><span class="status-badge status-active">Present</span></td>
+                                        <td>09:15 AM</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-avatar me-3">JS</div>
+                                                <div>Jane Smith</div>
+                                            </div>
+                                        </td>
+                                        <td><span class="status-badge status-pending">Late</span></td>
+                                        <td>09:45 AM</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary">Edit</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Submissions Section -->
+            <div id="submissionsSection" class="section">
+                <div class="section-header">
+                    <div class="header-content">
+                        <h1>Submissions</h1>
+                        <p>Review and grade student submissions</p>
+                    </div>
+                </div>
+                
+                <div class="content-card">
+                    <div class="card-header">
+                        <div class="search-filters">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" placeholder="Search submissions..." id="submissionSearch">
+                            </div>
+                            <div class="filters">
+                                <select class="form-select" id="submissionStatusFilter">
+                                    <option value="all">All Submissions</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="graded">Graded</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-container">
+                            <table class="table modern-table">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Task</th>
+                                        <th>Submitted</th>
+                                        <th>Status</th>
+                                        <th>Grade</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-avatar me-3">JD</div>
+                                                <div>John Doe</div>
+                                            </div>
+                                        </td>
+                                        <td>React Fundamentals</td>
+                                        <td>Dec 10, 2024</td>
+                                        <td><span class="status-badge status-pending">Pending</span></td>
+                                        <td>-</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-primary" onclick="showNotification('Grade submission modal opened', 'info')">Grade</button>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <div class="user-avatar me-3">JS</div>
+                                                <div>Jane Smith</div>
+                                            </div>
+                                        </td>
+                                        <td>JavaScript ES6</td>
+                                        <td>Dec 9, 2024</td>
+                                        <td><span class="status-badge status-completed">Graded</span></td>
+                                        <td>95/100</td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-info">View</button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Section -->
+            <div id="analyticsSection" class="section">
+                <div class="section-header">
+                    <h1>Analytics & Reports</h1>
+                    <p>View insights and performance metrics</p>
+                </div>
+                
+                <div class="analytics-grid">
+                    <div class="analytics-card">
+                        <h3>Attendance Trends</h3>
+                        <div class="chart-container">
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <div class="text-center">
+                                    <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">Chart will be displayed here</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Task Completion</h3>
+                        <div class="chart-container">
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <div class="text-center">
+                                    <i class="fas fa-chart-pie fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">Chart will be displayed here</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="analytics-card">
+                        <h3>Student Performance</h3>
+                        <div class="chart-container">
+                            <div class="d-flex align-items-center justify-content-center h-100">
+                                <div class="text-center">
+                                    <i class="fas fa-chart-bar fa-3x text-muted mb-3"></i>
+                                    <p class="text-muted">Chart will be displayed here</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings Section -->
+            <div id="settingsSection" class="section">
+                <div class="section-header">
+                    <h1>Settings</h1>
+                    <p>Configure your preferences and system settings</p>
+                </div>
+                
+                <div class="settings-grid">
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>Appearance</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <label>Dark Mode</label>
+                                    <p>Switch between light and dark themes</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="themeToggle" checked>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <label>Compact Mode</label>
+                                    <p>Reduce spacing for more content</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="compactMode">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>Notifications</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <label>Email Notifications</label>
+                                    <p>Receive notifications via email</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="emailNotifications" checked>
+                                </div>
+                            </div>
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <label>Push Notifications</label>
+                                    <p>Receive browser notifications</p>
+                                </div>
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="pushNotifications">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3>Preferences</h3>
+                        </div>
+                        <div class="card-body">
+                            <div class="form-group mb-3">
+                                <label>Language</label>
+                                <select class="form-control" id="languageSelect">
+                                    <option value="en" selected>English</option>
+                                    <option value="es">Spanish</option>
+                                    <option value="fr">French</option>
+                                </select>
+                            </div>
+                            <div class="form-group mb-3">
+                                <label>Date Format</label>
+                                <select class="form-control" id="dateFormatSelect">
+                                    <option value="MM/DD/YYYY" selected>MM/DD/YYYY</option>
+                                    <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Time Format</label>
+                                <select class="form-control" id="timeFormatSelect">
+                                    <option value="12h" selected>12-hour</option>
+                                    <option value="24h">24-hour</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notifications Panel -->
+    <div class="notifications-panel" id="notificationsPanel">
+        <div class="notifications-header">
+            <h5>Notifications</h5>
+            <button class="btn-close btn-close-white" onclick="closeNotifications()"></button>
+        </div>
+        <div class="notifications-list" id="notificationsList">
+            <div class="notification-item info">
+                <div class="notification-icon">
+                    <i class="fas fa-info-circle"></i>
+                </div>
+                <div class="notification-content">
+                    <p>New student registration request</p>
+                    <span class="notification-time">5 min ago</span>
+                </div>
+            </div>
+            <div class="notification-item warning">
+                <div class="notification-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <div class="notification-content">
+                    <p>Task deadline approaching</p>
+                    <span class="notification-time">1 hour ago</span>
+                </div>
+            </div>
+            <div class="notification-item success">
+                <div class="notification-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <div class="notification-content">
+                    <p>Attendance session opened</p>
+                    <span class="notification-time">2 hours ago</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap Bundle with Popper -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    
+    <!-- Custom JavaScript -->
+    <script src="js/main.js"></script>
+    
+    <script>
+        // Demo-specific functions
+        function showNotification(message, type = 'info') {
+            const notification = document.createElement('div');
+            notification.className = `notification-toast ${type}`;
+            notification.innerHTML = `
+                <div class="notification-content">
+                    <i class="fas fa-${getNotificationIcon(type)}"></i>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 100);
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    document.body.removeChild(notification);
+                }, 300);
+            }, 5000);
+        }
+
+        function getNotificationIcon(type) {
+            const icons = {
+                info: 'info-circle',
+                warning: 'exclamation-triangle',
+                success: 'check-circle',
+                error: 'times-circle'
+            };
+            return icons[type] || 'info-circle';
+        }
+
+        function closeNotifications() {
+            const panel = document.getElementById('notificationsPanel');
+            panel.classList.remove('open');
+        }
+
+        // Initialize demo
+        document.addEventListener('DOMContentLoaded', () => {
+            // Hide loading screen after 2 seconds
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loadingScreen');
+                if (loadingScreen) {
+                    loadingScreen.style.opacity = '0';
+                    setTimeout(() => {
+                        loadingScreen.style.display = 'none';
+                    }, 500);
+                }
+            }, 2000);
+
+            // Setup demo interactions
+            document.getElementById('notificationsBtn').addEventListener('click', () => {
+                const panel = document.getElementById('notificationsPanel');
+                panel.classList.toggle('open');
+            });
+
+            document.getElementById('themeToggle').addEventListener('click', () => {
+                const body = document.body;
+                const icon = document.querySelector('#themeToggle i');
+                
+                if (body.classList.contains('light-theme')) {
+                    body.classList.remove('light-theme');
+                    body.classList.add('modern-theme');
+                    icon.className = 'fas fa-moon';
+                } else {
+                    body.classList.remove('modern-theme');
+                    body.classList.add('light-theme');
+                    icon.className = 'fas fa-sun';
+                }
+            });
+
+            // Navigation
+            document.querySelectorAll('.nav-item[data-section]').forEach(item => {
+                item.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    
+                    // Remove active class from all nav items and sections
+                    document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                    document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
+                    
+                    // Add active class to clicked item
+                    item.classList.add('active');
+                    
+                    // Show corresponding section
+                    const section = item.getAttribute('data-section');
+                    const targetSection = document.getElementById(section + 'Section');
+                    if (targetSection) {
+                        targetSection.classList.add('active');
+                    }
+                    
+                    // Update breadcrumb
+                    const breadcrumb = document.getElementById('currentSection');
+                    if (breadcrumb) {
+                        const sectionNames = {
+                            'dashboard': 'Dashboard',
+                            'students': 'Students',
+                            'tasks': 'Tasks',
+                            'attendance': 'Attendance',
+                            'submissions': 'Submissions',
+                            'analytics': 'Analytics',
+                            'settings': 'Settings'
+                        };
+                        breadcrumb.textContent = sectionNames[section] || 'Dashboard';
+                    }
+                });
+            });
+
+            // Sidebar toggle
+            document.getElementById('sidebarToggle').addEventListener('click', () => {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.querySelector('.main-content');
+                
+                if (sidebar.classList.contains('collapsed')) {
+                    sidebar.classList.remove('collapsed');
+                    mainContent.classList.remove('expanded');
+                } else {
+                    sidebar.classList.add('collapsed');
+                    mainContent.classList.add('expanded');
+                }
+            });
+        });
+    </script>
+</body>
+</html> 
