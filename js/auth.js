@@ -216,7 +216,7 @@ class Auth {
         localStorage.removeItem('userData');
         this.showLoginModal();
         this.showNotification('Logged out successfully', 'success');
-                        window.location.href = 'login.html';
+                        window.location.href = 'index.html';
 
     }
 
