@@ -317,16 +317,12 @@
             
             // Check student credentials
             if (email === 'student@school.com' && password === 'student123') {
-                showMessage('Login successful! Redirecting to student dashboard...', 'success');
-                
                 // Store user type in localStorage
                 localStorage.setItem('userType', 'student');
                 localStorage.setItem('userEmail', email);
                 
-                setTimeout(() => {
-                    // Redirect to student dashboard
-                    window.location.href = 'student-dashboard.html';
-                }, 1500);
+                // Redirect immediately to student dashboard
+                window.location.href = 'student-dashboard.html';
             } else {
                 showMessage('Invalid student credentials. Please try again.', 'error');
             }
@@ -347,16 +343,12 @@
             
             // Check admin credentials
             if (email === 'admin@school.com' && password === 'admin123') {
-                showMessage('Login successful! Redirecting to admin dashboard...', 'success');
-                
                 // Store user type in localStorage
                 localStorage.setItem('userType', 'admin');
                 localStorage.setItem('userEmail', email);
                 
-                setTimeout(() => {
-                    // Redirect to admin dashboard
-                    window.location.href = 'index.html';
-                }, 1500);
+                // Redirect immediately to admin dashboard
+                window.location.href = 'index.html';
             } else {
                 showMessage('Invalid admin credentials. Please try again.', 'error');
             }

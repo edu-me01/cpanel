@@ -24,7 +24,7 @@
     </div>
 
     <!-- Login Modal -->
-    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+    <!-- <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content modern-modal">
                 <div class="modal-header border-0">
@@ -35,7 +35,7 @@
                         <h4>Welcome Back</h4>
                         <p>Sign in to your account</p>
                     </div>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <form id="loginForm" class="modern-form">
@@ -54,7 +54,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Main Dashboard -->
     <div class="dashboard-container" id="dashboard" style="display: none;">
@@ -84,7 +84,7 @@
                         <i class="fas fa-moon"></i>
                     </button>
                     <div class="user-menu" id="userInfo">
-                    <!-- Will be populated by auth.js -->
+                        <!-- Will be populated by auth.js -->
                     </div>
                 </div>
             </div>
@@ -93,7 +93,7 @@
         <!-- Sidebar -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-content">
-            <div class="sidebar-nav">
+                <div class="sidebar-nav">
                     <a href="#dashboardSection" class="nav-item active" data-section="dashboard">
                         <div class="nav-icon">
                             <i class="fas fa-tachometer-alt"></i>
@@ -102,28 +102,28 @@
                     </a>
                     <a href="#studentsSection" class="nav-item admin-only" data-section="students">
                         <div class="nav-icon">
-                    <i class="fas fa-users"></i>
+                            <i class="fas fa-users"></i>
                         </div>
-                    <span>Students</span>
-                </a>
+                        <span>Students</span>
+                    </a>
                     <a href="#tasksSection" class="nav-item" data-section="tasks">
                         <div class="nav-icon">
-                    <i class="fas fa-tasks"></i>
+                            <i class="fas fa-tasks"></i>
                         </div>
-                    <span>Tasks</span>
-                </a>
+                        <span>Tasks</span>
+                    </a>
                     <a href="#attendanceSection" class="nav-item" data-section="attendance">
                         <div class="nav-icon">
-                    <i class="fas fa-calendar-check"></i>
+                            <i class="fas fa-calendar-check"></i>
                         </div>
-                    <span>Attendance</span>
-                </a>
+                        <span>Attendance</span>
+                    </a>
                     <a href="#submissionsSection" class="nav-item" data-section="submissions">
                         <div class="nav-icon">
-                    <i class="fas fa-file-alt"></i>
+                            <i class="fas fa-file-alt"></i>
                         </div>
-                    <span>Submissions</span>
-                </a>
+                        <span>Submissions</span>
+                    </a>
                     <a href="#analyticsSection" class="nav-item" data-section="analytics">
                         <div class="nav-icon">
                             <i class="fas fa-chart-line"></i>
@@ -132,20 +132,20 @@
                     </a>
                     <a href="#settingsSection" class="nav-item" data-section="settings">
                         <div class="nav-icon">
-                    <i class="fas fa-cog"></i>
+                            <i class="fas fa-cog"></i>
                         </div>
-                    <span>Settings</span>
-                </a>
+                        <span>Settings</span>
+                    </a>
                 </div>
                 <div class="sidebar-footer">
                     <a href="#" class="nav-item" id="logoutBtn">
                         <div class="nav-icon">
-                    <i class="fas fa-sign-out-alt"></i>
+                            <i class="fas fa-sign-out-alt"></i>
                         </div>
-                    <span>Logout</span>
-                </a>
+                        <span>Logout</span>
+                    </a>
+                </div>
             </div>
-        </div>
         </aside>
 
         <!-- Main Content -->
@@ -153,8 +153,10 @@
             <!-- Dashboard Overview Section -->
             <div id="dashboardSection" class="section active">
                 <div class="section-header">
-                    <h1>Dashboard Overview</h1>
-                    <p>Welcome back! Here's what's happening today.</p>
+                    <div class="header-content">
+                        <h1>Dashboard Overview</h1>
+                        <p>Welcome back! Here's what's happening today.</p>
+                    </div>
                 </div>
                 
                 <!-- Stats Cards -->
@@ -237,8 +239,8 @@
                         <p>Manage student accounts and information</p>
                     </div>
                     <button class="btn btn-primary modern-btn" onclick="openModal('addStudentModal')">
-                            <i class="fas fa-plus"></i> Add Student
-                        </button>
+                        <i class="fas fa-plus"></i> Add Student
+                    </button>
                 </div>
                 
                 <div class="content-card">
@@ -284,9 +286,9 @@
                         <p>Create and manage tasks for students</p>
                     </div>
                     <button class="btn btn-primary modern-btn" onclick="openModal('addTaskModal')">
-                            <i class="fas fa-plus"></i> Add Task
-                        </button>
-                    </div>
+                        <i class="fas fa-plus"></i> Add Task
+                    </button>
+                </div>
                 
                 <div class="content-card">
                     <div class="card-header">
@@ -355,21 +357,21 @@
                             <span id="attendanceStatus">Closed</span>
                         </div>
                         <div class="status-actions">
-                                    <div class="form-group">
-                                        <label>Date</label>
-                                        <input type="date" id="attendanceDate" class="form-control">
-                                    </div>
-                                    <div class="form-group">
-                                        <label>Session</label>
-                                        <select id="attendanceSession" class="form-control">
-                                            <option value="morning">Morning</option>
-                                            <option value="afternoon">Afternoon</option>
-                                            <option value="evening">Evening</option>
-                                        </select>
-                                    </div>
-                                </div>
+                            <div class="form-group">
+                                <label>Date</label>
+                                <input type="date" id="attendanceDate" class="form-control">
+                            </div>
+                            <div class="form-group">
+                                <label>Session</label>
+                                <select id="attendanceSession" class="form-control">
+                                    <option value="morning">Morning</option>
+                                    <option value="afternoon">Afternoon</option>
+                                    <option value="evening">Evening</option>
+                                </select>
                             </div>
                         </div>
+                    </div>
+                </div>
 
                 <div class="content-card">
                     <div class="card-header">
@@ -479,18 +481,18 @@
                 
                 <div class="settings-grid">
                     <div class="content-card">
-                    <div class="card-header">
+                        <div class="card-header">
                             <h3>Appearance</h3>
-                    </div>
-                    <div class="card-body">
+                        </div>
+                        <div class="card-body">
                             <form id="appearanceForm">
                                 <div class="setting-item">
                                     <div class="setting-info">
                                         <label>Dark Mode</label>
                                         <p>Switch between light and dark themes</p>
                                     </div>
-                                <div class="form-check form-switch">
-                                    <input class="form-check-input" type="checkbox" id="themeToggle">
+                                    <div class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" id="themeToggle">
                                     </div>
                                 </div>
                                 <div class="setting-item">
@@ -516,8 +518,8 @@
                                     <div class="setting-info">
                                         <label>Email Notifications</label>
                                         <p>Receive notifications via email</p>
-                            </div>
-                                <div class="form-check form-switch">
+                                    </div>
+                                    <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="emailNotifications">
                                     </div>
                                 </div>
@@ -525,8 +527,8 @@
                                     <div class="setting-info">
                                         <label>Push Notifications</label>
                                         <p>Receive browser notifications</p>
-                            </div>
-                                <div class="form-check form-switch">
+                                    </div>
+                                    <div class="form-check form-switch">
                                         <input class="form-check-input" type="checkbox" id="pushNotifications">
                                     </div>
                                 </div>
@@ -537,33 +539,33 @@
                     <div class="content-card">
                         <div class="card-header">
                             <h3>Preferences</h3>
-                            </div>
+                        </div>
                         <div class="card-body">
                             <form id="preferencesForm">
                                 <div class="form-group">
                                     <label>Language</label>
-                                <select class="form-control" id="languageSelect">
-                                    <option value="en">English</option>
-                                    <option value="es">Spanish</option>
-                                    <option value="fr">French</option>
-                                </select>
-                            </div>
+                                    <select class="form-control" id="languageSelect">
+                                        <option value="en">English</option>
+                                        <option value="es">Spanish</option>
+                                        <option value="fr">French</option>
+                                    </select>
+                                </div>
                                 <div class="form-group">
                                     <label>Date Format</label>
-                                <select class="form-control" id="dateFormatSelect">
-                                    <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                                    <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                                    <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                                </select>
-                            </div>
+                                    <select class="form-control" id="dateFormatSelect">
+                                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                    </select>
+                                </div>
                                 <div class="form-group">
                                     <label>Time Format</label>
-                                <select class="form-control" id="timeFormatSelect">
-                                    <option value="12h">12-hour</option>
-                                    <option value="24h">24-hour</option>
-                                </select>
-                            </div>
-                        </form>
+                                    <select class="form-control" id="timeFormatSelect">
+                                        <option value="12h">12-hour</option>
+                                        <option value="24h">24-hour</option>
+                                    </select>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -622,15 +624,15 @@
                                 <div class="form-floating mb-3">
                                     <input type="text" class="form-control" id="title" name="title" placeholder="Task Title" required>
                                     <label for="title">Task Title</label>
-                        </div>
-                        </div>
+                                </div>
+                            </div>
                             <div class="col-md-4">
                                 <div class="form-floating mb-3">
-                            <select class="form-control" id="priority" name="priority" required>
-                                <option value="high">High</option>
-                                <option value="medium">Medium</option>
-                                <option value="low">Low</option>
-                            </select>
+                                    <select class="form-control" id="priority" name="priority" required>
+                                        <option value="high">High</option>
+                                        <option value="medium">Medium</option>
+                                        <option value="low">Low</option>
+                                    </select>
                                     <label for="priority">Priority</label>
                                 </div>
                             </div>
@@ -684,15 +686,15 @@
                                     <input type="date" class="form-control" id="attendanceDate" name="date" required>
                                     <label for="attendanceDate">Date</label>
                                 </div>
-                        </div>
+                            </div>
                             <div class="col-md-6">
                                 <div class="form-floating mb-3">
-                            <select class="form-control" id="status" name="status" required>
-                                <option value="present">Present</option>
-                                <option value="absent">Absent</option>
-                                <option value="late">Late</option>
-                                <option value="excused">Excused</option>
-                            </select>
+                                    <select class="form-control" id="status" name="status" required>
+                                        <option value="present">Present</option>
+                                        <option value="absent">Absent</option>
+                                        <option value="late">Late</option>
+                                        <option value="excused">Excused</option>
+                                    </select>
                                     <label for="status">Status</label>
                                 </div>
                             </div>
@@ -763,5 +765,77 @@
     <script src="js/submissions.js" defer></script>
     <script src="js/settings.js" defer></script>
     <script src="js/main.js" defer></script>
+    
+    <script>
+        // Check user type on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            const userType = localStorage.getItem('userType');
+            const userEmail = localStorage.getItem('userEmail');
+            
+            // If no user is logged in, show login modal
+            if (!userType || !userEmail) {
+                const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+                return;
+            }
+            
+            // If user is a student, redirect to student dashboard
+            if (userType === 'student') {
+                window.location.href = 'student-dashboard.html';
+                return;
+            }
+            
+            // If user is admin, show admin dashboard
+            if (userType === 'admin') {
+                document.getElementById('dashboard').style.display = 'block';
+                // Initialize admin dashboard
+                if (window.taskManager) {
+                    window.taskManager.init();
+                }
+            } else {
+                // Invalid user type, show login modal
+                const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+                loginModal.show();
+            }
+        });
+
+        // Handle login form submission
+        document.getElementById('loginForm')?.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            
+            // Check admin credentials
+            if (email === 'admin@school.com' && password === 'admin123') {
+                localStorage.setItem('userType', 'admin');
+                localStorage.setItem('userEmail', email);
+                
+                // Close modal and show dashboard
+                const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+                loginModal.hide();
+                
+                document.getElementById('dashboard').style.display = 'block';
+                
+                // Initialize dashboard
+                if (window.taskManager) {
+                    window.taskManager.init();
+                }
+            } else {
+                alert('Invalid credentials. Please try again.');
+            }
+        });
+
+        // Global utility functions
+        window.openModal = (modalId) => {
+            const modal = new bootstrap.Modal(document.getElementById(modalId));
+            modal.show();
+        };
+
+        window.closeNotifications = () => {
+            const panel = document.getElementById('notificationsPanel');
+            panel.classList.remove('open');
+        };
+    </script>
 </body>
 </html> 

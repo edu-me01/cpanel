@@ -331,8 +331,34 @@
     </style>
 </head>
 <body>
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const userType = localStorage.getItem('userType');
+    const userEmail = localStorage.getItem('userEmail');
+    
+    // If no user is logged in, redirect to login
+    if (!userType || !userEmail) {
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    // If user is not a student, redirect to login
+    if (userType !== 'student') {
+      window.location.href = 'login.html';
+      return;
+    }
+    
+    // If user is a student, show the dashboard
+    document.getElementById('dashboard').style.display = 'block';
+    
+    // Initialize student dashboard
+    if (window.studentDashboard) {
+      window.studentDashboard.init();
+    }
+  });
+</script>
     <!-- Login Modal -->
-    <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
+    <!-- <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content glass-effect">
                 <div class="modal-header border-0">
@@ -371,7 +397,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Main Dashboard -->
     <div class="container-fluid" id="dashboard" style="display: none;">
@@ -385,7 +411,7 @@
                     <div class="text-white me-3" id="userInfo">
                         <!-- Will be populated by auth.js -->
                     </div>
-                    <button class="btn btn-outline-light btn-modern" id="logoutBtn">
+                    <button class="btn btn-outline-light btn-modern" id="logoutBtn" onclick="logout()">
                         <i class="fas fa-sign-out-alt me-2"></i>Logout
                     </button>
                 </div>
@@ -700,5 +726,45 @@
     <script src="js/auth.js" defer></script>
     <script src="js/realtime-updates.js" defer></script>
     <script src="js/student-dashboard.js" defer></script>
+    
+    <script>
+        // Initialize student dashboard
+        let studentDashboard;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            studentDashboard = new StudentDashboard();
+        });
+        
+        // Logout function
+        function logout() {
+            localStorage.removeItem('userType');
+            localStorage.removeItem('userEmail');
+            localStorage.removeItem('token');
+            localStorage.removeItem('userData');
+            window.location.href = 'login.html';
+        }
+        
+        // Global function for student dashboard actions
+        window.studentDashboard = {
+            markAttendance: function(status) {
+                if (studentDashboard) {
+                    studentDashboard.markAttendance(status);
+                }
+            },
+            editProfile: function() {
+                if (studentDashboard) {
+                    studentDashboard.editProfile();
+                }
+            },
+            saveProfile: function() {
+                if (studentDashboard) {
+                    studentDashboard.saveProfile();
+                }
+            },
+            showQuickActions: function() {
+                alert('Quick actions coming soon!');
+            }
+        };
+    </script>
 </body>
 </html> 

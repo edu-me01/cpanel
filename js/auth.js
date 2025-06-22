@@ -216,6 +216,8 @@ class Auth {
         localStorage.removeItem('userData');
         this.showLoginModal();
         this.showNotification('Logged out successfully', 'success');
+                        window.location.href = 'login.html';
+
     }
 
     checkAuth() {
@@ -231,6 +233,7 @@ class Auth {
         if (!this.isAuthenticated || this.userType !== 'admin') {
             this.showNotification('Admin access required', 'error');
             return false;
+
         }
         return true;
     }
