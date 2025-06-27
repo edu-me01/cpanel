@@ -96,7 +96,7 @@ This guide explains how to test the attendance system to ensure it works correct
 - [x] Attendance history display
 
 ### ✅ Data Management
-- [x] Attendance records stored in localStorage
+- [x] Attendance records stored in session
 - [x] Status persistence across page reloads
 - [x] Session and date tracking
 - [x] Student-specific attendance filtering
@@ -121,7 +121,7 @@ Test the responsive design on mobile devices to ensure the attendance form works
 ## Troubleshooting
 
 ### Common Issues:
-1. **Attendance form not showing:** Check if localStorage has 'attendanceOpen' set to 'true'
+1. **Attendance form not showing:** Check if session has 'attendanceOpen' set to 'true'
 2. **Cannot mark attendance:** Verify you're logged in as a student and attendance is open
 3. **Status not updating:** Refresh the page to see latest status changes
 
@@ -129,13 +129,13 @@ Test the responsive design on mobile devices to ensure the attendance form works
 Open browser console and run:
 ```javascript
 // Check attendance status
-console.log('Attendance Open:', localStorage.getItem('attendanceOpen'));
+console.log('Attendance Open:', session.getItem('attendanceOpen'));
 
 // Check current session
-console.log('Current Session:', localStorage.getItem('currentSession'));
+console.log('Current Session:', session.getItem('currentSession'));
 
 // View all attendance records
-console.log('Attendance Records:', JSON.parse(localStorage.getItem('attendance') || '[]'));
+console.log('Attendance Records:', JSON.parse(session.getItem('attendance') || '[]'));
 ```
 
 ## Success Criteria

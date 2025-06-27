@@ -1,100 +1,115 @@
-// Task configuration
-const taskConfig = {
-    tasks: {
-        day1: {
-            enabled: true,
-            title: "Day 1 Tasks",
-            description: "Basic JavaScript and DOM manipulation tasks"
-        },
-        day2: {
-            enabled: true,
-            title: "Day 2 Tasks",
-            description: "Event handling and form validation tasks"
-        },
-        day3: {
-            enabled: true,
-            title: "Day 3 Tasks",
-            description: "Local storage and data persistence tasks"
-        },
-        day4: {
-            enabled: true,
-            title: "Day 4 Tasks",
-            description: "API integration and async operations tasks"
-        },
-        day5: {
-            enabled: true,
-            title: "Day 5 Tasks",
-            description: "Error handling and debugging tasks"
-        },
-        day6: {
-            enabled: true,
-            title: "Day 6 Tasks",
-            description: "Object-oriented programming tasks"
-        },
-        day7: {
-            enabled: true,
-            title: "Day 7 Tasks",
-            description: "ES6+ features and modern JavaScript tasks"
-        },
-        day8: {
-            enabled: true,
-            title: "Day 8 Tasks",
-            description: "Testing and quality assurance tasks"
-        },
-        day9: {
-            enabled: true,
-            title: "Day 9 Tasks",
-            description: "Performance optimization tasks"
-        },
-        day10: {
-            enabled: true,
-            title: "Day 10 Tasks",
-            description: "Security and best practices tasks"
-        },
-        day11: {
-            enabled: true,
-            title: "Day 11 Tasks",
-            description: "Advanced concepts and patterns tasks"
-        },
-        day12: {
-            enabled: true,
-            title: "Day 12 Tasks",
-            description: "Final project and review tasks"
-        }
-    },
+// Application Configuration
+const config = {
+  // Server configuration
+  server: {
+    host: 'localhost',
+    port: 5000,
+    protocol: 'http'
+  },
 
-    // Get all enabled tasks
-    getEnabledTasks() {
-        return Object.entries(this.tasks)
-            .filter(([_, config]) => config.enabled)
-            .map(([day, config]) => ({
-                day,
-                ...config
-            }));
-    },
+  // API endpoints
+  api: {
+    baseUrl: '/api',
+    auth: '/login',
+    tasks: '/api/tasks',
+    students: '/api/students',
+    attendance: '/api/attendance',
+    submissions: '/api/submissions'
+  },
 
-    // Toggle task visibility
-    toggleTask(day) {
-        if (this.tasks[day]) {
-            this.tasks[day].enabled = !this.tasks[day].enabled;
-            return true;
-        }
-        return false;
-    },
+  // WebSocket configuration
+  websocket: {
+    url: 'ws://localhost:5000',
+    reconnectInterval: 5000,
+    maxReconnectAttempts: 5
+  },
 
-    // Save configuration to localStorage
-    saveConfig() {
-        localStorage.setItem('taskConfig', JSON.stringify(this.tasks));
-    },
+  // Task configuration
+  tasks: {
+    priorities: ['low', 'medium', 'high'],
+    statuses: ['pending', 'in-progress', 'completed', 'overdue'],
+    defaultPriority: 'medium',
+    defaultStatus: 'pending'
+  },
 
-    // Load configuration from localStorage
-    loadConfig() {
-        const savedConfig = localStorage.getItem('taskConfig');
-        if (savedConfig) {
-            this.tasks = JSON.parse(savedConfig);
-        }
+  // Authentication
+  auth: {
+    tokenKey: 'token',
+    userTypeKey: 'userType',
+    userDataKey: 'userData',
+    sessionTimeout: 24 * 60 * 60 * 1000 // 24 hours
+  },
+
+  // UI configuration
+  ui: {
+    refreshInterval: 30000, // 30 seconds
+    notificationTimeout: 5000, // 5 seconds
+    itemsPerPage: 10
+  },
+
+  // Demo credentials
+  demo: {
+    admin: {
+      email: 'admin@school.com',
+      password: 'admin123'
+    },
+    student: {
+      email: 'student@school.com',
+      password: 'student123'
     }
+  }
 };
 
-// Load saved configuration
-taskConfig.loadConfig(); 
+// Helper functions
+const apiHelpers = {
+  // Get full API URL
+  getApiUrl: (endpoint) => {
+    return `${config.api.baseUrl}${endpoint}`;
+  },
+
+  // Get server URL
+  getServerUrl: () => {
+    return `${config.server.protocol}://${config.server.host}:${config.server.port}`;
+  },
+
+  // Get WebSocket URL
+  getWebSocketUrl: () => {
+    return config.websocket.url;
+  },
+
+  // Get auth headers
+  getAuthHeaders: () => {
+    const token = sessionStorage.getItem(config.auth.tokenKey);
+    return {
+      'Content-Type': 'application/json',
+      'Authorization': token ? `Bearer ${token}` : ''
+    };
+  },
+
+  // Check if user is authenticated
+  isAuthenticated: () => {
+    return !!sessionStorage.getItem(config.auth.tokenKey);
+  },
+
+  // Get current user type
+  getUserType: () => {
+    return sessionStorage.getItem(config.auth.userTypeKey);
+  },
+
+  // Get current user data
+  getUserData: () => {
+    const userData = sessionStorage.getItem(config.auth.userDataKey);
+    return userData ? JSON.parse(userData) : null;
+  },
+
+  // Clear session
+  clearSession: () => {
+    sessionStorage.removeItem(config.auth.tokenKey);
+    sessionStorage.removeItem(config.auth.userTypeKey);
+    sessionStorage.removeItem(config.auth.userDataKey);
+  }
+};
+
+// Export for use in other modules
+window.config = config;
+window.apiHelpers = apiHelpers;

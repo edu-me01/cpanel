@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Test - Task Management System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .test-section {
+            margin-bottom: 2rem;
+            padding: 1rem;
+            border: 1px solid #dee2e6;
+            border-radius: 0.375rem;
+        }
+        .test-result {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            border-radius: 0.375rem;
+            font-family: monospace;
+            font-size: 0.875rem;
+        }
+        .test-result.success {
+            background-color: #d1e7dd;
+            color: #0f5132;
+            border: 1px solid #badbcc;
+        }
+        .test-result.error {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c2c7;
+        }
+        .test-result.info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+    </style>
+</head>
+<body class="bg-light">
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <h1 class="mb-4">
+                    <i class="fas fa-vial me-2"></i>
+                    API Test Suite - Task Management System
+                </h1>
+                
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    This page tests the backend API endpoints to ensure they're working correctly.
+                </div>
+
+                <!-- Server Status Test -->
+                <div class="test-section">
+                    <h3><i class="fas fa-server me-2"></i>Server Status Test</h3>
+                    <button class="btn btn-primary" onclick="testServerStatus()">
+                        <i class="fas fa-play me-2"></i>Test Server Status
+                    </button>
+                    <div id="serverStatusResult"></div>
+                </div>
+
+                <!-- Authentication Test -->
+                <div class="test-section">
+                    <h3><i class="fas fa-key me-2"></i>Authentication Test</h3>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <button class="btn btn-success" onclick="testAdminLogin()">
+                                <i class="fas fa-user-shield me-2"></i>Test Admin Login
+                            </button>
+                        </div>
+                        <div class="col-md-6">
+                            <button class="btn btn-info" onclick="testStudentLogin()">
+                                <i class="fas fa-user-graduate me-2"></i>Test Student Login
+                            </button>
+                        </div>
+                    </div>
+                    <div id="authResult"></div>
+                </div>
+
+                <!-- Task API Tests -->
+                <div class="test-section">
+                    <h3><i class="fas fa-tasks me-2"></i>Task API Tests</h3>
+                    <div class="row mb-3">
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-primary" onclick="testGetTasks()">
+                                <i class="fas fa-list me-2"></i>GET Tasks
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-success" onclick="testCreateTask()">
+                                <i class="fas fa-plus me-2"></i>Create Task
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-warning" onclick="testUpdateTask()">
+                                <i class="fas fa-edit me-2"></i>Update Task
+                            </button>
+                        </div>
+                        <div class="col-md-3">
+                            <button class="btn btn-outline-danger" onclick="testDeleteTask()">
+                                <i class="fas fa-trash me-2"></i>Delete Task
+                            </button>
+                        </div>
+                    </div>
+                    <div id="taskResult"></div>
+                </div>
+
+                <!-- WebSocket Test -->
+                <div class="test-section">
+                    <h3><i class="fas fa-wifi me-2"></i>WebSocket Test</h3>
+                    <button class="btn btn-primary" onclick="testWebSocket()">
+                        <i class="fas fa-plug me-2"></i>Test WebSocket Connection
+                    </button>
+                    <div id="websocketResult"></div>
+                </div>
+
+                <!-- Test Results Summary -->
+                <div class="test-section">
+                    <h3><i class="fas fa-chart-bar me-2"></i>Test Results Summary</h3>
+                    <div id="testSummary"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let testResults = {
+            serverStatus: false,
+            adminAuth: false,
+            studentAuth: false,
+            getTasks: false,
+            createTask: false,
+            updateTask: false,
+            deleteTask: false,
+            websocket: false
+        };
+
+        let authToken = null;
+        let createdTaskId = null;
+
+        // Test Server Status
+        async function testServerStatus() {
+            const resultDiv = document.getElementById('serverStatusResult');
+            resultDiv.innerHTML = '<div class="test-result info">Testing server status...</div>';
+
+            try {
+                const response = await fetch('/health');
+                if (response.ok) {
+                    const data = await response.json();
+                    testResults.serverStatus = true;
+                    resultDiv.innerHTML = `
+                        <div class="test-result success">
+                            <strong>✅ Server is running!</strong><br>
+                            Status: ${data.status}<br>
+                            Timestamp: ${data.timestamp}<br>
+                            Connections: ${data.connections}<br>
+                            Data: ${JSON.stringify(data.data, null, 2)}
+                        </div>
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                testResults.serverStatus = false;
+                resultDiv.innerHTML = `
+                    <div class="test-result error">
+                        <strong>❌ Server test failed!</strong><br>
+                        Error: ${error.message}<br>
+                        Make sure the server is running on port 5000
+                    </div>
+                `;
+            }
+            updateTestSummary();
+        }
+
+        // Test Admin Login
+        async function testAdminLogin() {
+            const resultDiv = document.getElementById('authResult');
+            resultDiv.innerHTML = '<div class="test-result info">Testing admin login...</div>';
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'admin@school.com',
+                        password: 'admin123',
+                        userType: 'admin'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        authToken = data.token;
+                        testResults.adminAuth = true;
+                        resultDiv.innerHTML = `
+                            <div class="test-result success">
+                                <strong>✅ Admin login successful!</strong><br>
+                                Token: ${data.token.substring(0, 20)}...<br>
+                                User Type: ${data.userType}
+                            </div>
+                        `;
+                    } else {
+                        throw new Error(data.message || 'Login failed');
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                testResults.adminAuth = false;
+                resultDiv.innerHTML = `
+                    <div class="test-result error">
+                        <strong>❌ Admin login failed!</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+            updateTestSummary();
+        }
+
+        // Test Student Login
+        async function testStudentLogin() {
+            const resultDiv = document.getElementById('authResult');
+            resultDiv.innerHTML = '<div class="test-result info">Testing student login...</div>';
+
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        email: 'student@school.com',
+                        password: 'student123',
+                        userType: 'student'
+                    })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    if (data.success) {
+                        testResults.studentAuth = true;
+                        resultDiv.innerHTML = `
+                            <div class="test-result success">
+                                <strong>✅ Student login successful!</strong><br>
+                                Token: ${data.token.substring(0, 20)}...<br>
+                                User Type: ${data.userType}
+                            </div>
+                        `;
+                    } else {
+                        throw new Error(data.message || 'Login failed');
+                    }
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                testResults.studentAuth = false;
+                resultDiv.innerHTML = `
+                    <div class="test-result error">
+                        <strong>❌ Student login failed!</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+            updateTestSummary();
+        }
+
+        // Test Get Tasks
+        async function testGetTasks() {
+            const resultDiv = document.getElementById('taskResult');
+            resultDiv.innerHTML = '<div class="test-result info">Testing GET /api/tasks...</div>';
+
+            if (!authToken) {
+                resultDiv.innerHTML = `
+                    <div class="test-result error">
+                        <strong>❌ Authentication required!</strong><br>
+                        Please login first using the admin or student login test.
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/tasks', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const tasks = await response.json();
+                    testResults.getTasks = true;
+                    resultDiv.innerHTML = `
+                        <div class="test-result success">
+                            <strong>✅ GET tasks successful!</strong><br>
+                            Found ${tasks.length} tasks<br>
+                            <pre>${JSON.stringify(tasks, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                testResults.getTasks = false;
+                resultDiv.innerHTML = `
+                    <div class="test-result error">
+                        <strong>❌ GET tasks failed!</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+            updateTestSummary();
+        }
+
+        // Test Create Task
+        async function testCreateTask() {
+            const resultDiv = document.getElementById('taskResult');
+            resultDiv.innerHTML = '<div class="test-result info">Testing POST /api/tasks...</div>';
+
+            if (!authToken) {
+                resultDiv.innerHTML = `
+                    <div class="test-result error">
+                        <strong>❌ Authentication required!</strong><br>
+                        Please login first using the admin login test.
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const taskData = {
+                    title: 'Test Task from API',
+                    description: 'This is a test task created via API',
+                    priority: 'medium',
+                    dueDate: '2024-12-31',
+                    dueTime: '23:59',
+                    createdBy: 'admin',
+                    createdByName: 'Admin'
+                };
+
+                const response = await fetch('/api/tasks', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(taskData)
+                });
+
+                if (response.ok) {
+                    const newTask = await response.json();
+                    createdTaskId = newTask.id;
+                    testResults.createTask = true;
+                    resultDiv.innerHTML = `
+                        <div class="test-result success">
+                            <strong>✅ Create task successful!</strong><br>
+                            Task ID: ${newTask.id}<br>
+                            <pre>${JSON.stringify(newTask, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                testResults.createTask = false;
+                resultDiv.innerHTML = `
+                    <div class="test-result error">
+                        <strong>❌ Create task failed!</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+            updateTestSummary();
+        }
+
+        // Test Update Task
+        async function testUpdateTask() {
+            const resultDiv = document.getElementById('taskResult');
+            resultDiv.innerHTML = '<div class="test-result info">Testing PUT /api/tasks...</div>';
+
+            if (!authToken || !createdTaskId) {
+                resultDiv.innerHTML = `
+                    <div class="test-result error">
+                        <strong>❌ Task ID required!</strong><br>
+                        Please create a task first using the "Create Task" test.
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const updateData = {
+                    title: 'Updated Test Task',
+                    description: 'This task has been updated via API',
+                    priority: 'high',
+                    status: 'in-progress'
+                };
+
+                const response = await fetch(`/api/tasks/${createdTaskId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify(updateData)
+                });
+
+                if (response.ok) {
+                    const updatedTask = await response.json();
+                    testResults.updateTask = true;
+                    resultDiv.innerHTML = `
+                        <div class="test-result success">
+                            <strong>✅ Update task successful!</strong><br>
+                            Task ID: ${updatedTask.id}<br>
+                            <pre>${JSON.stringify(updatedTask, null, 2)}</pre>
+                        </div>
+                    `;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                testResults.updateTask = false;
+                resultDiv.innerHTML = `
+                    <div class="test-result error">
+                        <strong>❌ Update task failed!</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+            updateTestSummary();
+        }
+
+        // Test Delete Task
+        async function testDeleteTask() {
+            const resultDiv = document.getElementById('taskResult');
+            resultDiv.innerHTML = '<div class="test-result info">Testing DELETE /api/tasks...</div>';
+
+            if (!authToken || !createdTaskId) {
+                resultDiv.innerHTML = `
+                    <div class="test-result error">
+                        <strong>❌ Task ID required!</strong><br>
+                        Please create a task first using the "Create Task" test.
+                    </div>
+                `;
+                return;
+            }
+
+            try {
+                const response = await fetch(`/api/tasks/${createdTaskId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    testResults.deleteTask = true;
+                    resultDiv.innerHTML = `
+                        <div class="test-result success">
+                            <strong>✅ Delete task successful!</strong><br>
+                            Task ID: ${createdTaskId} has been deleted
+                        </div>
+                    `;
+                    createdTaskId = null;
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                testResults.deleteTask = false;
+                resultDiv.innerHTML = `
+                    <div class="test-result error">
+                        <strong>❌ Delete task failed!</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+            }
+            updateTestSummary();
+        }
+
+        // Test WebSocket
+        function testWebSocket() {
+            const resultDiv = document.getElementById('websocketResult');
+            resultDiv.innerHTML = '<div class="test-result info">Testing WebSocket connection...</div>';
+
+            try {
+                const ws = new WebSocket('ws://localhost:5000');
+                
+                ws.onopen = function() {
+                    testResults.websocket = true;
+                    resultDiv.innerHTML = `
+                        <div class="test-result success">
+                            <strong>✅ WebSocket connected!</strong><br>
+                            Ready State: ${ws.readyState}<br>
+                            URL: ${ws.url}
+                        </div>
+                    `;
+                    ws.close();
+                    updateTestSummary();
+                };
+
+                ws.onerror = function(error) {
+                    testResults.websocket = false;
+                    resultDiv.innerHTML = `
+                        <div class="test-result error">
+                            <strong>❌ WebSocket connection failed!</strong><br>
+                            Error: ${error.message || 'Connection failed'}
+                        </div>
+                    `;
+                    updateTestSummary();
+                };
+
+                setTimeout(() => {
+                    if (ws.readyState !== WebSocket.OPEN) {
+                        testResults.websocket = false;
+                        resultDiv.innerHTML = `
+                            <div class="test-result error">
+                                <strong>❌ WebSocket connection timeout!</strong><br>
+                                Connection took too long to establish
+                            </div>
+                        `;
+                        updateTestSummary();
+                    }
+                }, 5000);
+
+            } catch (error) {
+                testResults.websocket = false;
+                resultDiv.innerHTML = `
+                    <div class="test-result error">
+                        <strong>❌ WebSocket test failed!</strong><br>
+                        Error: ${error.message}
+                    </div>
+                `;
+                updateTestSummary();
+            }
+        }
+
+        // Update Test Summary
+        function updateTestSummary() {
+            const summaryDiv = document.getElementById('testSummary');
+            const totalTests = Object.keys(testResults).length;
+            const passedTests = Object.values(testResults).filter(result => result).length;
+            const failedTests = totalTests - passedTests;
+
+            const summaryHTML = `
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Total Tests</h5>
+                                <h2 class="text-primary">${totalTests}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Passed</h5>
+                                <h2 class="text-success">${passedTests}</h2>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h5 class="card-title">Failed</h5>
+                                <h2 class="text-danger">${failedTests}</h2>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <h5>Test Details:</h5>
+                    <ul class="list-group">
+                        ${Object.entries(testResults).map(([test, result]) => `
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                ${test.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
+                                <span class="badge ${result ? 'bg-success' : 'bg-danger'} rounded-pill">
+                                    ${result ? 'PASS' : 'FAIL'}
+                                </span>
+                            </li>
+                        `).join('')}
+                    </ul>
+                </div>
+            `;
+
+            summaryDiv.innerHTML = summaryHTML;
+        }
+
+        // Auto-run server status test on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(testServerStatus, 1000);
+        });
+    </script>
+</body>
+</html> 

@@ -1,26 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Task Manager cPanel</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+      rel="stylesheet"
+    />
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <!-- Custom CSS -->
-    <link href="css/style.css" rel="stylesheet">
-</head>
-<body class="modern-theme">
+    <link href="css/style.css" rel="stylesheet" />
+  </head>
+  <body class="modern-theme">
+    <!-- Session Check -->
+    <script>
+      // Check if user is authenticated and is admin
+      document.addEventListener("DOMContentLoaded", () => {
+        const token = sessionStorage.getItem("token");
+        const userType = sessionStorage.getItem("userType");
+        const userData = sessionStorage.getItem("userData");
+
+        if (!token || !userType || !userData) {
+          // No valid session, redirect to login
+          window.location.href = "index.html";
+          return;
+        }
+
+        if (userType !== "admin") {
+          // User is not admin, redirect to appropriate page
+          if (userType === "student") {
+            window.location.href = "student-dashboard.html";
+          } else {
+            window.location.href = "index.html";
+          }
+          return;
+        }
+
+        // User is authenticated admin, show dashboard
+        document.getElementById("dashboard").style.display = "block";
+        document.getElementById("loadingScreen").style.display = "none";
+      });
+    </script>
+
     <!-- Loading Screen -->
     <div id="loadingScreen" class="loading-screen">
-        <div class="loading-content">
-            <div class="loading-spinner"></div>
-            <h3>Task Manager</h3>
-            <p>Loading your workspace...</p>
-        </div>
+      <div class="loading-content">
+        <div class="loading-spinner"></div>
+        <h3>Task Manager</h3>
+        <p>Loading your workspace...</p>
+      </div>
     </div>
 
     <!-- Login Modal -->
@@ -57,705 +96,1671 @@
     </div> -->
 
     <!-- Main Dashboard -->
-    <div class="dashboard-container" id="dashboard" style="display: none;">
-        <!-- Top Navigation Bar -->
-        <nav class="top-navbar">
-            <div class="navbar-left">
-                <button class="sidebar-toggle" id="sidebarToggle">
-                    <i class="fas fa-bars"></i>
-                </button>
-                <div class="brand">
-                    <i class="fas fa-tasks"></i>
-                    <span>Task Manager</span>
-                </div>
+    <div class="dashboard-container" id="dashboard" style="display: none">
+      <!-- Top Navigation Bar -->
+      <nav class="top-navbar">
+        <div class="navbar-left">
+          <button class="sidebar-toggle" id="sidebarToggle">
+            <i class="fas fa-bars"></i>
+          </button>
+          <div class="brand">
+            <i class="fas fa-tasks"></i>
+            <span>Task Manager</span>
+          </div>
+        </div>
+        <div class="navbar-center">
+          <div class="breadcrumb-nav">
+            <span id="currentSection">Dashboard</span>
+          </div>
+        </div>
+        <div class="navbar-right">
+          <div class="nav-actions">
+            <button class="action-btn" id="notificationsBtn">
+              <i class="fas fa-bell"></i>
+              <span class="badge">3</span>
+            </button>
+            <button class="action-btn" id="themeToggle">
+              <i class="fas fa-moon"></i>
+            </button>
+            <div class="user-menu" id="userInfo">
+              <!-- Will be populated by auth.js -->
             </div>
-            <div class="navbar-center">
-                <div class="breadcrumb-nav">
-                    <span id="currentSection">Dashboard</span>
-                </div>
-            </div>
-            <div class="navbar-right">
-                <div class="nav-actions">
-                    <button class="action-btn" id="notificationsBtn">
-                        <i class="fas fa-bell"></i>
-                        <span class="badge">3</span>
-                    </button>
-                    <button class="action-btn" id="themeToggle">
-                        <i class="fas fa-moon"></i>
-                    </button>
-                    <div class="user-menu" id="userInfo">
-                        <!-- Will be populated by auth.js -->
-                    </div>
-                </div>
-            </div>
-        </nav>
+          </div>
+        </div>
+      </nav>
 
-        <!-- Sidebar -->
-        <aside class="sidebar" id="sidebar">
-            <div class="sidebar-content">
-                <div class="sidebar-nav">
-                    <a href="#dashboardSection" class="nav-item active" data-section="dashboard">
-                        <div class="nav-icon">
-                            <i class="fas fa-tachometer-alt"></i>
-                        </div>
-                        <span>Dashboard</span>
-                    </a>
-                    <a href="#studentsSection" class="nav-item admin-only" data-section="students">
-                        <div class="nav-icon">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <span>Students</span>
-                    </a>
-                    <a href="#tasksSection" class="nav-item" data-section="tasks">
-                        <div class="nav-icon">
-                            <i class="fas fa-tasks"></i>
-                        </div>
-                        <span>Tasks</span>
-                    </a>
-                    <a href="#attendanceSection" class="nav-item" data-section="attendance">
-                        <div class="nav-icon">
-                            <i class="fas fa-calendar-check"></i>
-                        </div>
-                        <span>Attendance</span>
-                    </a>
-                    <a href="#submissionsSection" class="nav-item" data-section="submissions">
-                        <div class="nav-icon">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                        <span>Submissions</span>
-                    </a>
-                    <a href="#analyticsSection" class="nav-item" data-section="analytics">
-                        <div class="nav-icon">
-                            <i class="fas fa-chart-line"></i>
-                        </div>
-                        <span>Analytics</span>
-                    </a>
-                    <a href="#settingsSection" class="nav-item" data-section="settings">
-                        <div class="nav-icon">
-                            <i class="fas fa-cog"></i>
-                        </div>
-                        <span>Settings</span>
-                    </a>
-                </div>
-                <div class="sidebar-footer">
-                    <a href="#" class="nav-item" id="logoutBtn">
-                        <div class="nav-icon">
-                            <i class="fas fa-sign-out-alt"></i>
-                        </div>
-                        <span>Logout</span>
-                    </a>
-                </div>
-            </div>
-        </aside>
+      <!-- Sidebar -->
+      <aside class="sidebar" id="sidebar">
+        <div class="sidebar-content">
+          <div class="sidebar-nav">
+            <a
+              href="#dashboardSection"
+              class="nav-item active"
+              data-section="dashboard"
+            >
+              <div class="nav-icon">
+                <i class="fas fa-tachometer-alt"></i>
+              </div>
+              <span>Dashboard</span>
+            </a>
+            <a
+              href="#studentsSection"
+              class="nav-item admin-only"
+              data-section="students"
+            >
+              <div class="nav-icon">
+                <i class="fas fa-users"></i>
+              </div>
+              <span>Students</span>
+            </a>
+            <a href="#tasksSection" class="nav-item" data-section="tasks">
+              <div class="nav-icon">
+                <i class="fas fa-tasks"></i>
+              </div>
+              <span>Tasks</span>
+            </a>
+            <a
+              href="#attendanceSection"
+              class="nav-item"
+              data-section="attendance"
+            >
+              <div class="nav-icon">
+                <i class="fas fa-calendar-check"></i>
+              </div>
+              <span>Attendance</span>
+            </a>
+            <a
+              href="#submissionsSection"
+              class="nav-item"
+              data-section="submissions"
+            >
+              <div class="nav-icon">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <span>Submissions</span>
+            </a>
+            <a
+              href="#analyticsSection"
+              class="nav-item"
+              data-section="analytics"
+            >
+              <div class="nav-icon">
+                <i class="fas fa-chart-line"></i>
+              </div>
+              <span>Analytics</span>
+            </a>
+            <a href="#settingsSection" class="nav-item" data-section="settings">
+              <div class="nav-icon">
+                <i class="fas fa-cog"></i>
+              </div>
+              <span>Settings</span>
+            </a>
+          </div>
+          <div class="sidebar-footer">
+            <a href="#" class="nav-item" id="logoutBtn">
+              <div class="nav-icon">
+                <i class="fas fa-sign-out-alt"></i>
+              </div>
+              <span>Logout</span>
+            </a>
+          </div>
+        </div>
+      </aside>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <!-- Dashboard Overview Section -->
-            <div id="dashboardSection" class="section active">
-                <div class="section-header">
-                    <div class="header-content">
-                        <h1>Dashboard Overview</h1>
-                        <p>Welcome back! Here's what's happening today.</p>
-                    </div>
+      <!-- Main Content -->
+      <main class="main-content">
+        <!-- Dashboard Overview Section -->
+        <div id="dashboardSection" class="section active">
+          <div class="section-header">
+            <div class="header-content">
+              <h1>Dashboard Overview</h1>
+              <p>Welcome back! Here's what's happening today.</p>
+            </div>
+          </div>
+
+          <!-- Stats Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon students">
+                <i class="fas fa-users"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="totalStudents">0</h3>
+                <p>Total Students</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon tasks">
+                <i class="fas fa-tasks"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="activeTasks">0</h3>
+                <p>Active Tasks</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon attendance">
+                <i class="fas fa-calendar-check"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="todayAttendance">0</h3>
+                <p>Today's Attendance</p>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon submissions">
+                <i class="fas fa-file-alt"></i>
+              </div>
+              <div class="stat-content">
+                <h3 id="pendingSubmissions">0</h3>
+                <p>Pending Submissions</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="actions-grid">
+              <button class="action-card" onclick="openModal('addTaskModal')">
+                <i class="fas fa-plus"></i>
+                <span>Add Task</span>
+              </button>
+              <button class="action-card" onclick="attendance.openAttendance()">
+                <i class="fas fa-door-open"></i>
+                <span>Open Attendance</span>
+              </button>
+              <button
+                class="action-card"
+                onclick="openModal('addStudentModal')"
+              >
+                <i class="fas fa-user-plus"></i>
+                <span>Add Student</span>
+              </button>
+              <button
+                class="action-card"
+                onclick="openModal('gradeSubmissionModal')"
+              >
+                <i class="fas fa-star"></i>
+                <span>Grade Submission</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="recent-activity">
+            <h3>Recent Activity</h3>
+            <div class="activity-list" id="activityList">
+              <!-- Activity items will be loaded here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Students Section -->
+        <div id="studentsSection" class="section admin-only">
+          <div class="section-header">
+            <div class="header-content">
+              <h1>Students Management</h1>
+              <p>Manage student accounts and information</p>
+            </div>
+            <button
+              class="btn btn-primary modern-btn"
+              onclick="openModal('addStudentModal')"
+            >
+              <i class="fas fa-plus"></i> Add Student
+            </button>
+          </div>
+
+          <div class="content-card">
+            <div class="card-header">
+              <div class="search-filters">
+                <div class="search-box">
+                  <i class="fas fa-search"></i>
+                  <input
+                    type="text"
+                    placeholder="Search students..."
+                    id="studentSearch"
+                    class="form-control"
+                  />
+                </div>
+                <div class="filters">
+                  <select class="form-select" id="studentStatusFilter">
+                    <option value="all">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                  </select>
+                  <select class="form-select" id="studentSortBy">
+                    <option value="name">Sort by Name</option>
+                    <option value="email">Sort by Email</option>
+                    <option value="lastActive">Sort by Last Active</option>
+                    <option value="status">Sort by Status</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-container">
+                <div class="table-responsive">
+                  <table class="table modern-table" id="studentsTable">
+                    <thead class="table-header">
+                      <tr>
+                        <th class="sortable" data-sort="name">
+                          <div class="th-content">
+                            <i class="fas fa-user me-2"></i>Student Name
+                            <i class="fas fa-sort ms-1"></i>
+                          </div>
+                        </th>
+                        <th class="sortable" data-sort="email">
+                          <div class="th-content">
+                            <i class="fas fa-envelope me-2"></i>Email
+                            <i class="fas fa-sort ms-1"></i>
+                          </div>
+                        </th>
+                        <th class="sortable" data-sort="status">
+                          <div class="th-content">
+                            <i class="fas fa-circle me-2"></i>Status
+                            <i class="fas fa-sort ms-1"></i>
+                          </div>
+                        </th>
+                        <th class="sortable" data-sort="lastActive">
+                          <div class="th-content">
+                            <i class="fas fa-clock me-2"></i>Last Active
+                            <i class="fas fa-sort ms-1"></i>
+                          </div>
+                        </th>
+                        <th class="actions-header">
+                          <div class="th-content">
+                            <i class="fas fa-cogs me-2"></i>Actions
+                          </div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody id="studentsTableBody">
+                      <!-- Sample data - will be populated by JavaScript -->
+                      <tr class="table-row">
+                        <td>
+                          <div class="student-info">
+                            <div class="student-avatar">
+                              <img src="https://ui-avatars.com/api/?name=John+Doe&background=6366f1&color=fff&size=40" alt="John Doe" />
+                            </div>
+                            <div class="student-details">
+                              <div class="student-name">John Doe</div>
+                              <div class="student-id">ID: STU001</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="email-cell">
+                            <i class="fas fa-envelope me-2 text-muted"></i>
+                            john.doe@school.com
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge status-badge active">
+                            <i class="fas fa-circle me-1"></i>Active
+                          </span>
+                        </td>
+                        <td>
+                          <div class="last-active">
+                            <i class="fas fa-clock me-2 text-muted"></i>
+                            <span class="time-ago">2 hours ago</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-primary" title="Edit Student">
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" title="View Profile">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" title="Delete Student">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr class="table-row">
+                        <td>
+                          <div class="student-info">
+                            <div class="student-avatar">
+                              <img src="https://ui-avatars.com/api/?name=Jane+Smith&background=10b981&color=fff&size=40" alt="Jane Smith" />
+                            </div>
+                            <div class="student-details">
+                              <div class="student-name">Jane Smith</div>
+                              <div class="student-id">ID: STU002</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="email-cell">
+                            <i class="fas fa-envelope me-2 text-muted"></i>
+                            jane.smith@school.com
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge status-badge active">
+                            <i class="fas fa-circle me-1"></i>Active
+                          </span>
+                        </td>
+                        <td>
+                          <div class="last-active">
+                            <i class="fas fa-clock me-2 text-muted"></i>
+                            <span class="time-ago">1 day ago</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-primary" title="Edit Student">
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" title="View Profile">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" title="Delete Student">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr class="table-row">
+                        <td>
+                          <div class="student-info">
+                            <div class="student-avatar">
+                              <img src="https://ui-avatars.com/api/?name=Mike+Johnson&background=f59e0b&color=fff&size=40" alt="Mike Johnson" />
+                            </div>
+                            <div class="student-details">
+                              <div class="student-name">Mike Johnson</div>
+                              <div class="student-id">ID: STU003</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="email-cell">
+                            <i class="fas fa-envelope me-2 text-muted"></i>
+                            mike.johnson@school.com
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge status-badge inactive">
+                            <i class="fas fa-circle me-1"></i>Inactive
+                          </span>
+                        </td>
+                        <td>
+                          <div class="last-active">
+                            <i class="fas fa-clock me-2 text-muted"></i>
+                            <span class="time-ago">1 week ago</span>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-primary" title="Edit Student">
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" title="View Profile">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" title="Delete Student">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
                 
-                <!-- Stats Cards -->
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <div class="stat-icon students">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="totalStudents">0</h3>
-                            <p>Total Students</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon tasks">
-                            <i class="fas fa-tasks"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="activeTasks">0</h3>
-                            <p>Active Tasks</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon attendance">
-                            <i class="fas fa-calendar-check"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="todayAttendance">0</h3>
-                            <p>Today's Attendance</p>
-                        </div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-icon submissions">
-                            <i class="fas fa-file-alt"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h3 id="pendingSubmissions">0</h3>
-                            <p>Pending Submissions</p>
-                        </div>
-                    </div>
+                <!-- Pagination -->
+                <div class="pagination-container">
+                  <div class="pagination-info">
+                    Showing <span id="studentsStart">1</span> to <span id="studentsEnd">10</span> of <span id="studentsTotal">25</span> students
+                  </div>
+                  <nav aria-label="Students pagination">
+                    <ul class="pagination pagination-sm">
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Previous</a>
+                      </li>
+                      <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                      <li class="page-item"><a class="page-link" href="#">2</a></li>
+                      <li class="page-item"><a class="page-link" href="#">3</a></li>
+                      <li class="page-item">
+                        <a class="page-link" href="#">Next</a>
+                      </li>
+                    </ul>
+                  </nav>
                 </div>
-
-                <!-- Quick Actions -->
-                <div class="quick-actions">
-                    <h3>Quick Actions</h3>
-                    <div class="actions-grid">
-                        <button class="action-card" onclick="openModal('addTaskModal')">
-                            <i class="fas fa-plus"></i>
-                            <span>Add Task</span>
-                        </button>
-                        <button class="action-card" onclick="attendance.openAttendance()">
-                            <i class="fas fa-door-open"></i>
-                            <span>Open Attendance</span>
-                        </button>
-                        <button class="action-card" onclick="openModal('addStudentModal')">
-                            <i class="fas fa-user-plus"></i>
-                            <span>Add Student</span>
-                        </button>
-                        <button class="action-card" onclick="openModal('gradeSubmissionModal')">
-                            <i class="fas fa-star"></i>
-                            <span>Grade Submission</span>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Recent Activity -->
-                <div class="recent-activity">
-                    <h3>Recent Activity</h3>
-                    <div class="activity-list" id="activityList">
-                        <!-- Activity items will be loaded here -->
-                    </div>
-                </div>
+              </div>
             </div>
+          </div>
+        </div>
 
-            <!-- Students Section -->
-            <div id="studentsSection" class="section admin-only">
-                <div class="section-header">
-                    <div class="header-content">
-                        <h1>Students Management</h1>
-                        <p>Manage student accounts and information</p>
-                    </div>
-                    <button class="btn btn-primary modern-btn" onclick="openModal('addStudentModal')">
-                        <i class="fas fa-plus"></i> Add Student
-                    </button>
+        <!-- Tasks Section -->
+        <div id="tasksSection" class="section">
+          <div class="section-header">
+            <div class="header-content">
+              <h1>Task Management</h1>
+              <p>Create and manage tasks for students</p>
+            </div>
+            <button
+              class="btn btn-primary modern-btn"
+              onclick="openModal('addTaskModal')"
+            >
+              <i class="fas fa-plus"></i> Add Task
+            </button>
+          </div>
+
+          <div class="content-card">
+            <div class="card-header">
+              <div class="search-filters">
+                <div class="search-box">
+                  <i class="fas fa-search"></i>
+                  <input
+                    type="text"
+                    placeholder="Search tasks..."
+                    id="taskSearch"
+                    class="form-control"
+                  />
+                </div>
+                <div class="filters">
+                  <select class="form-select" id="taskStatusFilter">
+                    <option value="all">All Tasks</option>
+                    <option value="pending">Pending</option>
+                    <option value="in-progress">In Progress</option>
+                    <option value="completed">Completed</option>
+                    <option value="overdue">Overdue</option>
+                  </select>
+                  <select class="form-select" id="taskPriorityFilter">
+                    <option value="all">All Priorities</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                  </select>
+                  <select class="form-select" id="taskSortBy">
+                    <option value="dueDate">Sort by Due Date</option>
+                    <option value="title">Sort by Title</option>
+                    <option value="priority">Sort by Priority</option>
+                    <option value="status">Sort by Status</option>
+                    <option value="createdAt">Sort by Created</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-container">
+                <div class="table-responsive">
+                  <table class="table modern-table" id="tasksTable">
+                    <thead class="table-header">
+                      <tr>
+                        <th class="sortable" data-sort="title">
+                          <div class="th-content">
+                            <i class="fas fa-tasks me-2"></i>Task
+                            <i class="fas fa-sort ms-1"></i>
+                          </div>
+                        </th>
+                        <th class="sortable" data-sort="description">
+                          <div class="th-content">
+                            <i class="fas fa-align-left me-2"></i>Description
+                            <i class="fas fa-sort ms-1"></i>
+                          </div>
+                        </th>
+                        <th class="sortable" data-sort="dueDate">
+                          <div class="th-content">
+                            <i class="fas fa-calendar me-2"></i>Due Date
+                            <i class="fas fa-sort ms-1"></i>
+                          </div>
+                        </th>
+                        <th class="sortable" data-sort="priority">
+                          <div class="th-content">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Priority
+                            <i class="fas fa-sort ms-1"></i>
+                          </div>
+                        </th>
+                        <th class="sortable" data-sort="status">
+                          <div class="th-content">
+                            <i class="fas fa-info-circle me-2"></i>Status
+                            <i class="fas fa-sort ms-1"></i>
+                          </div>
+                        </th>
+                        <th class="actions-header">
+                          <div class="th-content">
+                            <i class="fas fa-cogs me-2"></i>Actions
+                          </div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody id="tasksTableBody">
+                      <!-- Sample task data -->
+                      <tr class="table-row">
+                        <td>
+                          <div class="task-info">
+                            <div class="task-title">Complete Math Assignment</div>
+                            <div class="task-id">ID: TASK001</div>
+                            <div class="task-creator">Created by: Admin</div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="task-description">
+                            Solve all problems in Chapter 5 of the mathematics textbook. Include step-by-step solutions.
+                          </div>
+                        </td>
+                        <td>
+                          <div class="task-date">
+                            <div class="date">Dec 15, 2024</div>
+                            <div class="time">23:59</div>
+                            <div class="overdue-warning text-danger">
+                              <i class="fas fa-exclamation-triangle me-1"></i>Overdue
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="priority-indicator priority-high">
+                            <i class="fas fa-exclamation-triangle me-1"></i>High
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge status-badge overdue">
+                            <i class="fas fa-circle me-1"></i>Overdue
+                          </span>
+                        </td>
+                        <td>
+                          <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-primary" title="Edit Task">
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" title="View Details">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" title="Delete Task">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr class="table-row">
+                        <td>
+                          <div class="task-info">
+                            <div class="task-title">Science Project Presentation</div>
+                            <div class="task-id">ID: TASK002</div>
+                            <div class="task-creator">Created by: Admin</div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="task-description">
+                            Prepare a 10-minute presentation on renewable energy sources. Include visual aids and references.
+                          </div>
+                        </td>
+                        <td>
+                          <div class="task-date">
+                            <div class="date">Dec 20, 2024</div>
+                            <div class="time">14:00</div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="priority-indicator priority-medium">
+                            <i class="fas fa-minus me-1"></i>Medium
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge status-badge in-progress">
+                            <i class="fas fa-circle me-1"></i>In Progress
+                          </span>
+                        </td>
+                        <td>
+                          <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-primary" title="Edit Task">
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" title="View Details">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" title="Delete Task">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr class="table-row">
+                        <td>
+                          <div class="task-info">
+                            <div class="task-title">Literature Essay</div>
+                            <div class="task-id">ID: TASK003</div>
+                            <div class="task-creator">Created by: Admin</div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="task-description">
+                            Write a 1500-word essay analyzing the themes in "To Kill a Mockingbird". Use proper citations.
+                          </div>
+                        </td>
+                        <td>
+                          <div class="task-date">
+                            <div class="date">Dec 25, 2024</div>
+                            <div class="time">23:59</div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="priority-indicator priority-low">
+                            <i class="fas fa-arrow-down me-1"></i>Low
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge status-badge pending">
+                            <i class="fas fa-circle me-1"></i>Pending
+                          </span>
+                        </td>
+                        <td>
+                          <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-primary" title="Edit Task">
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" title="View Details">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" title="Delete Task">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr class="table-row">
+                        <td>
+                          <div class="task-info">
+                            <div class="task-title">History Research Paper</div>
+                            <div class="task-id">ID: TASK004</div>
+                            <div class="task-creator">Created by: Admin</div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="task-description">
+                            Research and write a paper on the Industrial Revolution's impact on modern society.
+                          </div>
+                        </td>
+                        <td>
+                          <div class="task-date">
+                            <div class="date">Dec 18, 2024</div>
+                            <div class="time">23:59</div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="priority-indicator priority-high">
+                            <i class="fas fa-exclamation-triangle me-1"></i>High
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge status-badge completed">
+                            <i class="fas fa-circle me-1"></i>Completed
+                          </span>
+                        </td>
+                        <td>
+                          <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-primary" title="Edit Task">
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" title="View Details">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-danger" title="Delete Task">
+                              <i class="fas fa-trash"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
                 
-                <div class="content-card">
-                    <div class="card-header">
-                        <div class="search-filters">
-                            <div class="search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" placeholder="Search students..." id="studentSearch">
-                            </div>
-                            <div class="filters">
-                                <select class="form-select" id="studentStatusFilter">
-                                    <option value="all">All Status</option>
-                                    <option value="active">Active</option>
-                                    <option value="inactive">Inactive</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-container">
-                            <table class="table modern-table">
-                                <thead>
-                                    <tr>
-                                        <th>Student</th>
-                                        <th>Email</th>
-                                        <th>Status</th>
-                                        <th>Last Active</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="studentsTableBody"></tbody>
-                            </table>
-                        </div>
-                    </div>
+                <!-- Pagination -->
+                <div class="pagination-container">
+                  <div class="pagination-info">
+                    Showing <span id="tasksStart">1</span> to <span id="tasksEnd">4</span> of <span id="tasksTotal">4</span> tasks
+                  </div>
+                  <nav aria-label="Tasks pagination">
+                    <ul class="pagination pagination-sm">
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Previous</a>
+                      </li>
+                      <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#">Next</a>
+                      </li>
+                    </ul>
+                  </nav>
                 </div>
+              </div>
             </div>
+          </div>
+        </div>
 
-            <!-- Tasks Section -->
-            <div id="tasksSection" class="section">
-                <div class="section-header">
-                    <div class="header-content">
-                        <h1>Task Management</h1>
-                        <p>Create and manage tasks for students</p>
-                    </div>
-                    <button class="btn btn-primary modern-btn" onclick="openModal('addTaskModal')">
-                        <i class="fas fa-plus"></i> Add Task
-                    </button>
+        <!-- Attendance Section -->
+        <div id="attendanceSection" class="section">
+          <div class="section-header">
+            <div class="header-content">
+              <h1>Attendance Management</h1>
+              <p>Track student attendance and manage sessions</p>
+            </div>
+            <div class="header-actions">
+              <button
+                class="btn btn-success modern-btn"
+                onclick="attendance.openAttendance()"
+              >
+                <i class="fas fa-door-open"></i> Open Attendance
+              </button>
+              <button
+                class="btn btn-danger modern-btn"
+                onclick="attendance.closeAttendance()"
+              >
+                <i class="fas fa-door-closed"></i> Close Attendance
+              </button>
+            </div>
+          </div>
+
+          <div class="attendance-overview">
+            <div class="status-card">
+              <div class="status-indicator" id="attendanceStatusIndicator">
+                <i class="fas fa-circle"></i>
+                <span id="attendanceStatus">Closed</span>
+              </div>
+              <div class="status-actions">
+                <div class="form-group">
+                  <label>Date</label>
+                  <input type="date" id="attendanceDate" class="form-control" />
+                </div>
+                <div class="form-group">
+                  <label>Session</label>
+                  <select id="attendanceSession" class="form-control">
+                    <option value="morning">Morning</option>
+                    <option value="afternoon">Afternoon</option>
+                    <option value="evening">Evening</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="content-card">
+            <div class="card-header">
+              <div class="search-filters">
+                <div class="search-box">
+                  <i class="fas fa-search"></i>
+                  <input
+                    type="text"
+                    placeholder="Search students..."
+                    id="attendanceSearch"
+                    class="form-control"
+                  />
+                </div>
+                <div class="filters">
+                  <select class="form-select" id="attendanceStatusFilter">
+                    <option value="all">All Status</option>
+                    <option value="present">Present</option>
+                    <option value="absent">Absent</option>
+                    <option value="late">Late</option>
+                    <option value="excused">Excused</option>
+                  </select>
+                  <select class="form-select" id="attendanceDateFilter">
+                    <option value="today">Today</option>
+                    <option value="yesterday">Yesterday</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                  </select>
+                  <select class="form-select" id="attendanceSortBy">
+                    <option value="name">Sort by Name</option>
+                    <option value="status">Sort by Status</option>
+                    <option value="time">Sort by Time</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-container">
+                <div class="table-responsive">
+                  <table class="table modern-table" id="attendanceTable">
+                    <thead class="table-header">
+                      <tr>
+                        <th class="sortable" data-sort="name">
+                          <div class="th-content">
+                            <i class="fas fa-user me-2"></i>Student
+                            <i class="fas fa-sort ms-1"></i>
+                          </div>
+                        </th>
+                        <th class="sortable" data-sort="status">
+                          <div class="th-content">
+                            <i class="fas fa-circle me-2"></i>Status
+                            <i class="fas fa-sort ms-1"></i>
+                          </div>
+                        </th>
+                        <th class="sortable" data-sort="time">
+                          <div class="th-content">
+                            <i class="fas fa-clock me-2"></i>Time
+                            <i class="fas fa-sort ms-1"></i>
+                          </div>
+                        </th>
+                        <th class="sortable" data-sort="date">
+                          <div class="th-content">
+                            <i class="fas fa-calendar me-2"></i>Date
+                            <i class="fas fa-sort ms-1"></i>
+                          </div>
+                        </th>
+                        <th class="actions-header">
+                          <div class="th-content">
+                            <i class="fas fa-cogs me-2"></i>Actions
+                          </div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody id="attendanceTableBody">
+                      <!-- Sample attendance data -->
+                      <tr class="table-row attendance-row present">
+                        <td>
+                          <div class="student-info">
+                            <div class="student-avatar">
+                              <img src="https://ui-avatars.com/api/?name=John+Doe&background=10b981&color=fff&size=40" alt="John Doe" />
+                            </div>
+                            <div class="student-details">
+                              <div class="student-name">John Doe</div>
+                              <div class="student-id">ID: STU001</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge status-badge present">
+                            <i class="fas fa-circle me-1"></i>Present
+                          </span>
+                        </td>
+                        <td>
+                          <div class="attendance-time">
+                            <i class="fas fa-clock me-2 text-muted"></i>
+                            08:30 AM
+                          </div>
+                        </td>
+                        <td>
+                          <div class="attendance-date">
+                            <i class="fas fa-calendar me-2 text-muted"></i>
+                            Dec 15, 2024
+                          </div>
+                        </td>
+                        <td>
+                          <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-primary" title="Edit Attendance">
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" title="View Details">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-warning" title="Mark Late">
+                              <i class="fas fa-clock"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr class="table-row attendance-row absent">
+                        <td>
+                          <div class="student-info">
+                            <div class="student-avatar">
+                              <img src="https://ui-avatars.com/api/?name=Jane+Smith&background=ef4444&color=fff&size=40" alt="Jane Smith" />
+                            </div>
+                            <div class="student-details">
+                              <div class="student-name">Jane Smith</div>
+                              <div class="student-id">ID: STU002</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge status-badge absent">
+                            <i class="fas fa-circle me-1"></i>Absent
+                          </span>
+                        </td>
+                        <td>
+                          <div class="attendance-time">
+                            <i class="fas fa-clock me-2 text-muted"></i>
+                            --
+                          </div>
+                        </td>
+                        <td>
+                          <div class="attendance-date">
+                            <i class="fas fa-calendar me-2 text-muted"></i>
+                            Dec 15, 2024
+                          </div>
+                        </td>
+                        <td>
+                          <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-primary" title="Edit Attendance">
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" title="View Details">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" title="Mark Present">
+                              <i class="fas fa-check"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr class="table-row attendance-row late">
+                        <td>
+                          <div class="student-info">
+                            <div class="student-avatar">
+                              <img src="https://ui-avatars.com/api/?name=Mike+Johnson&background=f59e0b&color=fff&size=40" alt="Mike Johnson" />
+                            </div>
+                            <div class="student-details">
+                              <div class="student-name">Mike Johnson</div>
+                              <div class="student-id">ID: STU003</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge status-badge late">
+                            <i class="fas fa-circle me-1"></i>Late
+                          </span>
+                        </td>
+                        <td>
+                          <div class="attendance-time">
+                            <i class="fas fa-clock me-2 text-muted"></i>
+                            09:15 AM
+                          </div>
+                        </td>
+                        <td>
+                          <div class="attendance-date">
+                            <i class="fas fa-calendar me-2 text-muted"></i>
+                            Dec 15, 2024
+                          </div>
+                        </td>
+                        <td>
+                          <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-primary" title="Edit Attendance">
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" title="View Details">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" title="Mark Present">
+                              <i class="fas fa-check"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr class="table-row attendance-row present">
+                        <td>
+                          <div class="student-info">
+                            <div class="student-avatar">
+                              <img src="https://ui-avatars.com/api/?name=Sarah+Wilson&background=8b5cf6&color=fff&size=40" alt="Sarah Wilson" />
+                            </div>
+                            <div class="student-details">
+                              <div class="student-name">Sarah Wilson</div>
+                              <div class="student-id">ID: STU004</div>
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge status-badge excused">
+                            <i class="fas fa-circle me-1"></i>Excused
+                          </span>
+                        </td>
+                        <td>
+                          <div class="attendance-time">
+                            <i class="fas fa-clock me-2 text-muted"></i>
+                            --
+                          </div>
+                        </td>
+                        <td>
+                          <div class="attendance-date">
+                            <i class="fas fa-calendar me-2 text-muted"></i>
+                            Dec 15, 2024
+                          </div>
+                        </td>
+                        <td>
+                          <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-primary" title="Edit Attendance">
+                              <i class="fas fa-edit"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" title="View Details">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-success" title="Mark Present">
+                              <i class="fas fa-check"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
                 
-                <div class="content-card">
-                    <div class="card-header">
-                        <div class="search-filters">
-                            <div class="search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" placeholder="Search tasks..." id="taskSearch">
-                            </div>
-                            <div class="filters">
-                                <select class="form-select" id="taskStatusFilter">
-                                    <option value="all">All Tasks</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="in-progress">In Progress</option>
-                                    <option value="completed">Completed</option>
-                                </select>
-                                <select class="form-select" id="taskPriorityFilter">
-                                    <option value="all">All Priorities</option>
-                                    <option value="high">High</option>
-                                    <option value="medium">Medium</option>
-                                    <option value="low">Low</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-container">
-                            <table class="table modern-table">
-                                <thead>
-                                    <tr>
-                                        <th>Task</th>
-                                        <th>Description</th>
-                                        <th>Due Date</th>
-                                        <th>Priority</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="tasksTableBody"></tbody>
-                            </table>
-                        </div>
-                    </div>
+                <!-- Pagination -->
+                <div class="pagination-container">
+                  <div class="pagination-info">
+                    Showing <span id="attendanceStart">1</span> to <span id="attendanceEnd">4</span> of <span id="attendanceTotal">4</span> records
+                  </div>
+                  <nav aria-label="Attendance pagination">
+                    <ul class="pagination pagination-sm">
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Previous</a>
+                      </li>
+                      <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#">Next</a>
+                      </li>
+                    </ul>
+                  </nav>
                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submissions Section -->
+        <div id="submissionsSection" class="section">
+          <div class="section-header">
+            <div class="header-content">
+              <h1>Submissions</h1>
+              <p>Review and grade student submissions</p>
+            </div>
+          </div>
+
+          <div class="content-card">
+            <div class="card-header">
+              <div class="search-filters">
+                <div class="search-box">
+                  <i class="fas fa-search"></i>
+                  <input
+                    type="text"
+                    placeholder="Search submissions..."
+                    id="submissionSearch"
+                  />
+                </div>
+                <div class="filters">
+                  <select class="form-select" id="submissionStatusFilter">
+                    <option value="all">All Submissions</option>
+                    <option value="pending">Pending</option>
+                    <option value="graded">Graded</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="table-container">
+                <table class="table modern-table">
+                  <thead>
+                    <tr>
+                      <th>Student</th>
+                      <th>Task</th>
+                      <th>Submitted</th>
+                      <th>Status</th>
+                      <th>Grade</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="submissionsTableBody"></tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Analytics Section -->
+        <div id="analyticsSection" class="section">
+          <div class="section-header">
+            <h1>Analytics & Reports</h1>
+            <p>View insights and performance metrics</p>
+          </div>
+
+          <div class="analytics-grid">
+            <div class="analytics-card">
+              <h3>Attendance Trends</h3>
+              <div class="chart-container">
+                <canvas id="attendanceChart"></canvas>
+              </div>
+            </div>
+            <div class="analytics-card">
+              <h3>Task Completion</h3>
+              <div class="chart-container">
+                <canvas id="taskChart"></canvas>
+              </div>
+            </div>
+            <div class="analytics-card">
+              <h3>Student Performance</h3>
+              <div class="chart-container">
+                <canvas id="performanceChart"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Settings Section -->
+        <div id="settingsSection" class="section">
+          <div class="section-header">
+            <h1>Settings</h1>
+            <p>Configure your preferences and system settings</p>
+          </div>
+
+          <div class="settings-grid">
+            <div class="content-card">
+              <div class="card-header">
+                <h3>Appearance</h3>
+              </div>
+              <div class="card-body">
+                <form id="appearanceForm">
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <label>Dark Mode</label>
+                      <p>Switch between light and dark themes</p>
+                    </div>
+                    <div class="form-check form-switch">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="themeToggle"
+                      />
+                    </div>
+                  </div>
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <label>Compact Mode</label>
+                      <p>Reduce spacing for more content</p>
+                    </div>
+                    <div class="form-check form-switch">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="compactMode"
+                      />
+                    </div>
+                  </div>
+                </form>
+              </div>
             </div>
 
-            <!-- Attendance Section -->
-            <div id="attendanceSection" class="section">
-                <div class="section-header">
-                    <div class="header-content">
-                        <h1>Attendance Management</h1>
-                        <p>Track student attendance and manage sessions</p>
+            <div class="content-card">
+              <div class="card-header">
+                <h3>Notifications</h3>
+              </div>
+              <div class="card-body">
+                <form id="notificationsForm">
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <label>Email Notifications</label>
+                      <p>Receive notifications via email</p>
                     </div>
-                    <div class="header-actions">
-                        <button class="btn btn-success modern-btn" onclick="attendance.openAttendance()">
-                            <i class="fas fa-door-open"></i> Open Attendance
-                        </button>
-                        <button class="btn btn-danger modern-btn" onclick="attendance.closeAttendance()">
-                            <i class="fas fa-door-closed"></i> Close Attendance
-                        </button>
+                    <div class="form-check form-switch">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="emailNotifications"
+                      />
                     </div>
-                </div>
-                
-                <div class="attendance-overview">
-                    <div class="status-card">
-                        <div class="status-indicator" id="attendanceStatusIndicator">
-                            <i class="fas fa-circle"></i>
-                            <span id="attendanceStatus">Closed</span>
-                        </div>
-                        <div class="status-actions">
-                            <div class="form-group">
-                                <label>Date</label>
-                                <input type="date" id="attendanceDate" class="form-control">
-                            </div>
-                            <div class="form-group">
-                                <label>Session</label>
-                                <select id="attendanceSession" class="form-control">
-                                    <option value="morning">Morning</option>
-                                    <option value="afternoon">Afternoon</option>
-                                    <option value="evening">Evening</option>
-                                </select>
-                            </div>
-                        </div>
+                  </div>
+                  <div class="setting-item">
+                    <div class="setting-info">
+                      <label>Push Notifications</label>
+                      <p>Receive browser notifications</p>
                     </div>
-                </div>
-
-                <div class="content-card">
-                    <div class="card-header">
-                        <h3>Today's Attendance</h3>
-                        <button class="btn btn-outline-primary btn-sm" onclick="openModal('markAttendanceModal')">
-                            <i class="fas fa-plus"></i> Mark Attendance
-                        </button>
+                    <div class="form-check form-switch">
+                      <input
+                        class="form-check-input"
+                        type="checkbox"
+                        id="pushNotifications"
+                      />
                     </div>
-                    <div class="card-body">
-                        <div class="table-container">
-                            <table class="table modern-table">
-                                <thead>
-                                    <tr>
-                                        <th>Student</th>
-                                        <th>Status</th>
-                                        <th>Time</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="attendanceTableBody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+                  </div>
+                </form>
+              </div>
             </div>
 
-            <!-- Submissions Section -->
-            <div id="submissionsSection" class="section">
-                <div class="section-header">
-                    <div class="header-content">
-                        <h1>Submissions</h1>
-                        <p>Review and grade student submissions</p>
-                    </div>
-                </div>
-                
-                <div class="content-card">
-                    <div class="card-header">
-                        <div class="search-filters">
-                            <div class="search-box">
-                                <i class="fas fa-search"></i>
-                                <input type="text" placeholder="Search submissions..." id="submissionSearch">
-                            </div>
-                            <div class="filters">
-                                <select class="form-select" id="submissionStatusFilter">
-                                    <option value="all">All Submissions</option>
-                                    <option value="pending">Pending</option>
-                                    <option value="graded">Graded</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <div class="table-container">
-                            <table class="table modern-table">
-                                <thead>
-                                    <tr>
-                                        <th>Student</th>
-                                        <th>Task</th>
-                                        <th>Submitted</th>
-                                        <th>Status</th>
-                                        <th>Grade</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="submissionsTableBody"></tbody>
-                            </table>
-                        </div>
-                    </div>
-                </div>
+            <div class="content-card">
+              <div class="card-header">
+                <h3>Preferences</h3>
+              </div>
+              <div class="card-body">
+                <form id="preferencesForm">
+                  <div class="form-group">
+                    <label>Language</label>
+                    <select class="form-control" id="languageSelect">
+                      <option value="en">English</option>
+                      <option value="es">Spanish</option>
+                      <option value="fr">French</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Date Format</label>
+                    <select class="form-control" id="dateFormatSelect">
+                      <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                      <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                      <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Time Format</label>
+                    <select class="form-control" id="timeFormatSelect">
+                      <option value="12h">12-hour</option>
+                      <option value="24h">24-hour</option>
+                    </select>
+                  </div>
+                </form>
+              </div>
             </div>
-
-            <!-- Analytics Section -->
-            <div id="analyticsSection" class="section">
-                <div class="section-header">
-                    <h1>Analytics & Reports</h1>
-                    <p>View insights and performance metrics</p>
-                </div>
-                
-                <div class="analytics-grid">
-                    <div class="analytics-card">
-                        <h3>Attendance Trends</h3>
-                        <div class="chart-container">
-                            <canvas id="attendanceChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="analytics-card">
-                        <h3>Task Completion</h3>
-                        <div class="chart-container">
-                            <canvas id="taskChart"></canvas>
-                        </div>
-                    </div>
-                    <div class="analytics-card">
-                        <h3>Student Performance</h3>
-                        <div class="chart-container">
-                            <canvas id="performanceChart"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Settings Section -->
-            <div id="settingsSection" class="section">
-                <div class="section-header">
-                    <h1>Settings</h1>
-                    <p>Configure your preferences and system settings</p>
-                </div>
-                
-                <div class="settings-grid">
-                    <div class="content-card">
-                        <div class="card-header">
-                            <h3>Appearance</h3>
-                        </div>
-                        <div class="card-body">
-                            <form id="appearanceForm">
-                                <div class="setting-item">
-                                    <div class="setting-info">
-                                        <label>Dark Mode</label>
-                                        <p>Switch between light and dark themes</p>
-                                    </div>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="themeToggle">
-                                    </div>
-                                </div>
-                                <div class="setting-item">
-                                    <div class="setting-info">
-                                        <label>Compact Mode</label>
-                                        <p>Reduce spacing for more content</p>
-                                    </div>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="compactMode">
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="content-card">
-                        <div class="card-header">
-                            <h3>Notifications</h3>
-                        </div>
-                        <div class="card-body">
-                            <form id="notificationsForm">
-                                <div class="setting-item">
-                                    <div class="setting-info">
-                                        <label>Email Notifications</label>
-                                        <p>Receive notifications via email</p>
-                                    </div>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="emailNotifications">
-                                    </div>
-                                </div>
-                                <div class="setting-item">
-                                    <div class="setting-info">
-                                        <label>Push Notifications</label>
-                                        <p>Receive browser notifications</p>
-                                    </div>
-                                    <div class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" id="pushNotifications">
-                                    </div>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-
-                    <div class="content-card">
-                        <div class="card-header">
-                            <h3>Preferences</h3>
-                        </div>
-                        <div class="card-body">
-                            <form id="preferencesForm">
-                                <div class="form-group">
-                                    <label>Language</label>
-                                    <select class="form-control" id="languageSelect">
-                                        <option value="en">English</option>
-                                        <option value="es">Spanish</option>
-                                        <option value="fr">French</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Date Format</label>
-                                    <select class="form-control" id="dateFormatSelect">
-                                        <option value="MM/DD/YYYY">MM/DD/YYYY</option>
-                                        <option value="DD/MM/YYYY">DD/MM/YYYY</option>
-                                        <option value="YYYY-MM-DD">YYYY-MM-DD</option>
-                                    </select>
-                                </div>
-                                <div class="form-group">
-                                    <label>Time Format</label>
-                                    <select class="form-control" id="timeFormatSelect">
-                                        <option value="12h">12-hour</option>
-                                        <option value="24h">24-hour</option>
-                                    </select>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </main>
+          </div>
+        </div>
+      </main>
     </div>
 
     <!-- Modern Modals -->
     <!-- Add Student Modal -->
-    <div class="modal fade" id="addStudentModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content modern-modal">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Student</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addStudentForm" class="modern-form">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="fullName" name="fullName" placeholder="Full Name" required>
-                            <label for="fullName">Full Name</label>
-                        </div>
-                        <div class="form-floating mb-3">
-                            <input type="email" class="form-control" id="studentEmail" name="email" placeholder="Email" required>
-                            <label for="studentEmail">Email Address</label>
-                        </div>
-                        <div class="form-floating mb-3">
-                            <input type="password" class="form-control" id="studentPassword" name="password" placeholder="Password" required>
-                            <label for="studentPassword">Password</label>
-                        </div>
-                        <div class="form-floating mb-4">
-                            <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Confirm Password" required>
-                            <label for="confirmPassword">Confirm Password</label>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 modern-btn">
-                            <i class="fas fa-user-plus me-2"></i>Add Student
-                        </button>
-                    </form>
-                </div>
-            </div>
+    <div
+      class="modal fade"
+      id="addStudentModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modern-modal">
+          <div class="modal-header">
+            <h5 class="modal-title">Add New Student</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="addStudentForm" class="modern-form">
+              <div class="form-floating mb-3">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="fullName"
+                  name="fullName"
+                  placeholder="Full Name"
+                  required
+                />
+                <label for="fullName">Full Name</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input
+                  type="email"
+                  class="form-control"
+                  id="studentEmail"
+                  name="email"
+                  placeholder="Email"
+                  required
+                />
+                <label for="studentEmail">Email Address</label>
+              </div>
+              <div class="form-floating mb-3">
+                <input
+                  type="password"
+                  class="form-control"
+                  id="studentPassword"
+                  name="password"
+                  placeholder="Password"
+                  required
+                />
+                <label for="studentPassword">Password</label>
+              </div>
+              <div class="form-floating mb-4">
+                <input
+                  type="password"
+                  class="form-control"
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  placeholder="Confirm Password"
+                  required
+                />
+                <label for="confirmPassword">Confirm Password</label>
+              </div>
+              <button type="submit" class="btn btn-primary w-100 modern-btn">
+                <i class="fas fa-user-plus me-2"></i>Add Student
+              </button>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Add Task Modal -->
     <div class="modal fade" id="addTaskModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content modern-modal">
-                <div class="modal-header">
-                    <h5 class="modal-title">Create New Task</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content modern-modal">
+          <div class="modal-header">
+            <h5 class="modal-title">Create New Task</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="addTaskForm" class="modern-form">
+              <div class="row">
+                <div class="col-md-8">
+                  <div class="form-floating mb-3">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="title"
+                      name="title"
+                      placeholder="Task Title"
+                      required
+                    />
+                    <label for="title">Task Title</label>
+                  </div>
                 </div>
-                <div class="modal-body">
-                    <form id="addTaskForm" class="modern-form">
-                        <div class="row">
-                            <div class="col-md-8">
-                                <div class="form-floating mb-3">
-                                    <input type="text" class="form-control" id="title" name="title" placeholder="Task Title" required>
-                                    <label for="title">Task Title</label>
-                                </div>
-                            </div>
-                            <div class="col-md-4">
-                                <div class="form-floating mb-3">
-                                    <select class="form-control" id="priority" name="priority" required>
-                                        <option value="high">High</option>
-                                        <option value="medium">Medium</option>
-                                        <option value="low">Low</option>
-                                    </select>
-                                    <label for="priority">Priority</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-floating mb-3">
-                            <textarea class="form-control" id="description" name="description" placeholder="Description" rows="4"></textarea>
-                            <label for="description">Description</label>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-floating mb-3">
-                                    <input type="date" class="form-control" id="dueDate" name="dueDate" required>
-                                    <label for="dueDate">Due Date</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-floating mb-3">
-                                    <input type="time" class="form-control" id="dueTime" name="dueTime">
-                                    <label for="dueTime">Due Time</label>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 modern-btn">
-                            <i class="fas fa-plus me-2"></i>Create Task
-                        </button>
-                    </form>
+                <div class="col-md-4">
+                  <div class="form-floating mb-3">
+                    <select
+                      class="form-control"
+                      id="priority"
+                      name="priority"
+                      required
+                    >
+                      <option value="high">High</option>
+                      <option value="medium">Medium</option>
+                      <option value="low">Low</option>
+                    </select>
+                    <label for="priority">Priority</label>
+                  </div>
                 </div>
-            </div>
+              </div>
+              <div class="form-floating mb-3">
+                <textarea
+                  class="form-control"
+                  id="description"
+                  name="description"
+                  placeholder="Description"
+                  rows="4"
+                ></textarea>
+                <label for="description">Description</label>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-floating mb-3">
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="dueDate"
+                      name="dueDate"
+                      required
+                    />
+                    <label for="dueDate">Due Date</label>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-floating mb-3">
+                    <input
+                      type="time"
+                      class="form-control"
+                      id="dueTime"
+                      name="dueTime"
+                    />
+                    <label for="dueTime">Due Time</label>
+                  </div>
+                </div>
+              </div>
+              <button type="submit" class="btn btn-primary w-100 modern-btn">
+                <i class="fas fa-plus me-2"></i>Create Task
+              </button>
+            </form>
+          </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Edit Task Modal -->
+    <div class="modal fade" id="editTaskModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content modern-modal">
+          <div class="modal-header">
+            <h5 class="modal-title">Edit Task</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="editTaskForm" class="modern-form">
+              <input type="hidden" id="editTaskId" name="taskId" />
+              <div class="row">
+                <div class="col-md-8">
+                  <div class="form-floating mb-3">
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="editTitle"
+                      name="title"
+                      placeholder="Task Title"
+                      required
+                    />
+                    <label for="editTitle">Task Title</label>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-floating mb-3">
+                    <select
+                      class="form-control"
+                      id="editPriority"
+                      name="priority"
+                      required
+                    >
+                      <option value="high">High</option>
+                      <option value="medium">Medium</option>
+                      <option value="low">Low</option>
+                    </select>
+                    <label for="editPriority">Priority</label>
+                  </div>
+                </div>
+              </div>
+              <div class="form-floating mb-3">
+                <textarea
+                  class="form-control"
+                  id="editDescription"
+                  name="description"
+                  placeholder="Description"
+                  rows="4"
+                ></textarea>
+                <label for="editDescription">Description</label>
+              </div>
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-floating mb-3">
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="editDueDate"
+                      name="dueDate"
+                      required
+                    />
+                    <label for="editDueDate">Due Date</label>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-floating mb-3">
+                    <input
+                      type="time"
+                      class="form-control"
+                      id="editDueTime"
+                      name="dueTime"
+                    />
+                    <label for="editDueTime">Due Time</label>
+                  </div>
+                </div>
+                <div class="col-md-4">
+                  <div class="form-floating mb-3">
+                    <select
+                      class="form-control"
+                      id="editStatus"
+                      name="status"
+                      required
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="in-progress">In Progress</option>
+                      <option value="completed">Completed</option>
+                    </select>
+                    <label for="editStatus">Status</label>
+                  </div>
+                </div>
+              </div>
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill modern-btn">
+                  <i class="fas fa-save me-2"></i>Update Task
+                </button>
+                <button type="button" class="btn btn-secondary modern-btn" data-bs-dismiss="modal">
+                  <i class="fas fa-times me-2"></i>Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Mark Attendance Modal -->
-    <div class="modal fade" id="markAttendanceModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content modern-modal">
-                <div class="modal-header">
-                    <h5 class="modal-title">Mark Attendance</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <div
+      class="modal fade"
+      id="markAttendanceModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modern-modal">
+          <div class="modal-header">
+            <h5 class="modal-title">Mark Attendance</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="markAttendanceForm" class="modern-form">
+              <div class="form-floating mb-3">
+                <select
+                  class="form-control"
+                  id="studentId"
+                  name="studentId"
+                  required
+                >
+                  <!-- Will be populated dynamically -->
+                </select>
+                <label for="studentId">Select Student</label>
+              </div>
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-floating mb-3">
+                    <input
+                      type="date"
+                      class="form-control"
+                      id="attendanceDate"
+                      name="date"
+                      required
+                    />
+                    <label for="attendanceDate">Date</label>
+                  </div>
                 </div>
-                <div class="modal-body">
-                    <form id="markAttendanceForm" class="modern-form">
-                        <div class="form-floating mb-3">
-                            <select class="form-control" id="studentId" name="studentId" required>
-                                <!-- Will be populated dynamically -->
-                            </select>
-                            <label for="studentId">Select Student</label>
-                        </div>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <div class="form-floating mb-3">
-                                    <input type="date" class="form-control" id="attendanceDate" name="date" required>
-                                    <label for="attendanceDate">Date</label>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-floating mb-3">
-                                    <select class="form-control" id="status" name="status" required>
-                                        <option value="present">Present</option>
-                                        <option value="absent">Absent</option>
-                                        <option value="late">Late</option>
-                                        <option value="excused">Excused</option>
-                                    </select>
-                                    <label for="status">Status</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-floating mb-4">
-                            <textarea class="form-control" id="notes" name="notes" placeholder="Notes" rows="3"></textarea>
-                            <label for="notes">Notes (Optional)</label>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 modern-btn">
-                            <i class="fas fa-check me-2"></i>Mark Attendance
-                        </button>
-                    </form>
+                <div class="col-md-6">
+                  <div class="form-floating mb-3">
+                    <select
+                      class="form-control"
+                      id="status"
+                      name="status"
+                      required
+                    >
+                      <option value="present">Present</option>
+                      <option value="absent">Absent</option>
+                      <option value="late">Late</option>
+                      <option value="excused">Excused</option>
+                    </select>
+                    <label for="status">Status</label>
+                  </div>
                 </div>
-            </div>
+              </div>
+              <div class="form-floating mb-4">
+                <textarea
+                  class="form-control"
+                  id="notes"
+                  name="notes"
+                  placeholder="Notes"
+                  rows="3"
+                ></textarea>
+                <label for="notes">Notes (Optional)</label>
+              </div>
+              <button type="submit" class="btn btn-primary w-100 modern-btn">
+                <i class="fas fa-check me-2"></i>Mark Attendance
+              </button>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Grade Submission Modal -->
-    <div class="modal fade" id="gradeSubmissionModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content modern-modal">
-                <div class="modal-header">
-                    <h5 class="modal-title">Grade Submission</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="gradeSubmissionForm" class="modern-form">
-                        <input type="hidden" id="submissionId" name="submissionId">
-                        <div class="form-floating mb-3">
-                            <input type="text" class="form-control" id="grade" name="grade" placeholder="Grade" required>
-                            <label for="grade">Grade</label>
-                        </div>
-                        <div class="form-floating mb-4">
-                            <textarea class="form-control" id="feedback" name="feedback" placeholder="Feedback" rows="4"></textarea>
-                            <label for="feedback">Feedback</label>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100 modern-btn">
-                            <i class="fas fa-star me-2"></i>Submit Grade
-                        </button>
-                    </form>
-                </div>
-            </div>
+    <div
+      class="modal fade"
+      id="gradeSubmissionModal"
+      tabindex="-1"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content modern-modal">
+          <div class="modal-header">
+            <h5 class="modal-title">Grade Submission</h5>
+            <button
+              type="button"
+              class="btn-close btn-close-white"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="gradeSubmissionForm" class="modern-form">
+              <input type="hidden" id="submissionId" name="submissionId" />
+              <div class="form-floating mb-3">
+                <input
+                  type="text"
+                  class="form-control"
+                  id="grade"
+                  name="grade"
+                  placeholder="Grade"
+                  required
+                />
+                <label for="grade">Grade</label>
+              </div>
+              <div class="form-floating mb-4">
+                <textarea
+                  class="form-control"
+                  id="feedback"
+                  name="feedback"
+                  placeholder="Feedback"
+                  rows="4"
+                ></textarea>
+                <label for="feedback">Feedback</label>
+              </div>
+              <button type="submit" class="btn btn-primary w-100 modern-btn">
+                <i class="fas fa-star me-2"></i>Submit Grade
+              </button>
+            </form>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Notifications Panel -->
     <div class="notifications-panel" id="notificationsPanel">
-        <div class="notifications-header">
-            <h5>Notifications</h5>
-            <button class="btn-close btn-close-white" onclick="closeNotifications()"></button>
-        </div>
-        <div class="notifications-list" id="notificationsList">
-            <!-- Notifications will be loaded here -->
-        </div>
+      <div class="notifications-header">
+        <h5>Notifications</h5>
+        <button
+          class="btn-close btn-close-white"
+          onclick="closeNotifications()"
+        ></button>
+      </div>
+      <div class="notifications-list" id="notificationsList">
+        <!-- Notifications will be loaded here -->
+      </div>
     </div>
 
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
+
     <!-- Custom JavaScript -->
     <script src="js/auth.js" defer></script>
     <script src="js/realtime-updates.js" defer></script>
@@ -765,77 +1770,38 @@
     <script src="js/submissions.js" defer></script>
     <script src="js/settings.js" defer></script>
     <script src="js/main.js" defer></script>
-    
+
     <script>
-        // Check user type on page load
-        document.addEventListener('DOMContentLoaded', () => {
-            const userType = localStorage.getItem('userType');
-            const userEmail = localStorage.getItem('userEmail');
-            
-            // If no user is logged in, show login modal
-            if (!userType || !userEmail) {
-                const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-                loginModal.show();
-                return;
-            }
-            
-            // If user is a student, redirect to student dashboard
-            if (userType === 'student') {
-                window.location.href = 'student-dashboard.html';
-                return;
-            }
-            
-            // If user is admin, show admin dashboard
-            if (userType === 'admin') {
-                document.getElementById('dashboard').style.display = 'block';
-                // Initialize admin dashboard
-                if (window.taskManager) {
-                    window.taskManager.init();
-                }
-            } else {
-                // Invalid user type, show login modal
-                const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
-                loginModal.show();
-            }
-        });
+      // Global utility functions
+      window.openModal = (modalId) => {
+        const modal = new bootstrap.Modal(document.getElementById(modalId));
+        modal.show();
+      };
 
-        // Handle login form submission
-        document.getElementById('loginForm')?.addEventListener('submit', (e) => {
+      window.closeNotifications = () => {
+        const panel = document.getElementById("notificationsPanel");
+        panel.classList.remove("open");
+      };
+
+      // Logout function
+      window.logout = function () {
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("userType");
+        sessionStorage.removeItem("userEmail");
+        sessionStorage.removeItem("userData");
+        window.location.href = "index.html";
+      };
+
+      // Add logout event listener
+      document.addEventListener("DOMContentLoaded", () => {
+        const logoutBtn = document.getElementById("logoutBtn");
+        if (logoutBtn) {
+          logoutBtn.addEventListener("click", (e) => {
             e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            
-            // Check admin credentials
-            if (email === 'admin@school.com' && password === 'admin123') {
-                localStorage.setItem('userType', 'admin');
-                localStorage.setItem('userEmail', email);
-                
-                // Close modal and show dashboard
-                const loginModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
-                loginModal.hide();
-                
-                document.getElementById('dashboard').style.display = 'block';
-                
-                // Initialize dashboard
-                if (window.taskManager) {
-                    window.taskManager.init();
-                }
-            } else {
-                alert('Invalid credentials. Please try again.');
-            }
-        });
-
-        // Global utility functions
-        window.openModal = (modalId) => {
-            const modal = new bootstrap.Modal(document.getElementById(modalId));
-            modal.show();
-        };
-
-        window.closeNotifications = () => {
-            const panel = document.getElementById('notificationsPanel');
-            panel.classList.remove('open');
-        };
+            window.logout();
+          });
+        }
+      });
     </script>
-</body>
-</html> 
+  </body>
+</html>

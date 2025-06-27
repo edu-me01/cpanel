@@ -1,770 +1,1076 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Student Dashboard - Task Manager</title>
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <!-- Font Awesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
     <!-- Animate.css for animations -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"
+      rel="stylesheet"
+    />
     <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
     <!-- Custom CSS -->
-    <link href="css/style.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet" />
     <style>
-        :root {
-            --primary-color: #6366f1;
-            --secondary-color: #8b5cf6;
-            --success-color: #10b981;
-            --warning-color: #f59e0b;
-            --danger-color: #ef4444;
-            --info-color: #06b6d4;
-            --dark-color: #1f2937;
-            --light-color: #f8fafc;
-            --border-radius: 16px;
-            --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-            --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
-        }
+      :root {
+        --primary-color: #6366f1;
+        --secondary-color: #8b5cf6;
+        --success-color: #10b981;
+        --warning-color: #f59e0b;
+        --danger-color: #ef4444;
+        --info-color: #06b6d4;
+        --dark-color: #1f2937;
+        --light-color: #f8fafc;
+        --border-radius: 16px;
+        --shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        --shadow-hover: 0 20px 40px rgba(0, 0, 0, 0.15);
+      }
 
-        * {
-            font-family: 'Inter', sans-serif;
-        }
+      * {
+        font-family: "Inter", sans-serif;
+      }
 
-        body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
+      body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        overflow-x: hidden;
+      }
 
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: var(--border-radius);
-        }
+      .glass-effect {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: var(--border-radius);
+      }
 
-        .card {
-            border: none;
-            border-radius: var(--border-radius);
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-        }
+      .card {
+        border: none;
+        border-radius: var(--border-radius);
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+      }
 
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-hover);
-        }
+      .card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-hover);
+      }
 
-        .navbar {
-            background: rgba(255, 255, 255, 0.1) !important;
-            backdrop-filter: blur(20px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-        }
+      .navbar {
+        background: rgba(255, 255, 255, 0.1) !important;
+        backdrop-filter: blur(20px);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      }
 
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-            color: white !important;
-        }
+      .navbar-brand {
+        font-weight: 700;
+        font-size: 1.5rem;
+        color: white !important;
+      }
 
-        .nav-tabs {
-            border: none;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border-radius: var(--border-radius);
-            padding: 8px;
-            margin-bottom: 2rem;
-        }
+      .nav-tabs {
+        border: none;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        border-radius: var(--border-radius);
+        padding: 8px;
+        margin-bottom: 2rem;
+      }
 
-        .nav-tabs .nav-link {
-            border: none;
-            border-radius: 12px;
-            color: rgba(255, 255, 255, 0.8);
-            font-weight: 500;
-            padding: 12px 24px;
-            margin: 0 4px;
-            transition: all 0.3s ease;
-        }
+      .nav-tabs .nav-link {
+        border: none;
+        border-radius: 12px;
+        color: rgba(255, 255, 255, 0.8);
+        font-weight: 500;
+        padding: 12px 24px;
+        margin: 0 4px;
+        transition: all 0.3s ease;
+      }
 
-        .nav-tabs .nav-link:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-        }
+      .nav-tabs .nav-link:hover {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+      }
 
-        .nav-tabs .nav-link.active {
-            background: white;
-            color: var(--primary-color);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        }
+      .nav-tabs .nav-link.active {
+        background: white;
+        color: var(--primary-color);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
 
-        .stats-card {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border-radius: var(--border-radius);
-            padding: 2rem;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
+      .stats-card {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
 
-        .stats-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-            transform: rotate(45deg);
-        }
+      .stats-card::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 200%;
+        height: 200%;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 50%;
+        transform: rotate(45deg);
+      }
 
-        .stats-card.success {
-            background: linear-gradient(135deg, var(--success-color), #059669);
-        }
+      .stats-card.success {
+        background: linear-gradient(135deg, var(--success-color), #059669);
+      }
 
-        .stats-card.info {
-            background: linear-gradient(135deg, var(--info-color), #0891b2);
-        }
+      .stats-card.info {
+        background: linear-gradient(135deg, var(--info-color), #0891b2);
+      }
 
-        .stats-card.warning {
-            background: linear-gradient(135deg, var(--warning-color), #d97706);
-        }
+      .stats-card.warning {
+        background: linear-gradient(135deg, var(--warning-color), #d97706);
+      }
 
-        .stats-number {
-            font-size: 3rem;
-            font-weight: 700;
-            margin-bottom: 0.5rem;
-            position: relative;
-            z-index: 1;
-        }
+      .stats-number {
+        font-size: 3rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+        position: relative;
+        z-index: 1;
+      }
 
-        .stats-label {
-            font-size: 1rem;
-            opacity: 0.9;
-            position: relative;
-            z-index: 1;
-        }
+      .stats-label {
+        font-size: 1rem;
+        opacity: 0.9;
+        position: relative;
+        z-index: 1;
+      }
 
-        .btn-modern {
-            border-radius: 12px;
-            padding: 12px 24px;
-            font-weight: 600;
-            border: none;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
+      .btn-modern {
+        border-radius: 12px;
+        padding: 12px 24px;
+        font-weight: 600;
+        border: none;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+      }
 
-        .btn-modern::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s;
-        }
+      .btn-modern::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.2),
+          transparent
+        );
+        transition: left 0.5s;
+      }
 
-        .btn-modern:hover::before {
-            left: 100%;
-        }
+      .btn-modern:hover::before {
+        left: 100%;
+      }
 
-        .btn-primary {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-        }
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+      }
 
-        .btn-success {
-            background: linear-gradient(135deg, var(--success-color), #059669);
-        }
+      .btn-success {
+        background: linear-gradient(135deg, var(--success-color), #059669);
+      }
 
-        .btn-warning {
-            background: linear-gradient(135deg, var(--warning-color), #d97706);
-        }
+      .btn-warning {
+        background: linear-gradient(135deg, var(--warning-color), #d97706);
+      }
 
-        .btn-danger {
-            background: linear-gradient(135deg, var(--danger-color), #dc2626);
-        }
+      .btn-danger {
+        background: linear-gradient(135deg, var(--danger-color), #dc2626);
+      }
 
-        .table {
-            border-radius: var(--border-radius);
-            overflow: hidden;
-            box-shadow: var(--shadow);
-        }
+      .table {
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        box-shadow: var(--shadow);
+      }
 
-        .table thead th {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border: none;
-            font-weight: 600;
-            padding: 1rem;
-        }
+      .table thead th {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        border: none;
+        font-weight: 600;
+        padding: 1rem;
+      }
 
-        .table tbody tr {
-            transition: all 0.3s ease;
-        }
+      .table tbody tr {
+        transition: all 0.3s ease;
+      }
 
-        .table tbody tr:hover {
-            background: rgba(99, 102, 241, 0.05);
-            transform: scale(1.01);
-        }
+      .table tbody tr:hover {
+        background: rgba(99, 102, 241, 0.05);
+        transform: scale(1.01);
+      }
 
-        .badge {
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-weight: 600;
-        }
+      .badge {
+        border-radius: 8px;
+        padding: 8px 12px;
+        font-weight: 600;
+      }
 
-        .profile-picture {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            border: 4px solid white;
-            box-shadow: var(--shadow);
-            transition: all 0.3s ease;
-        }
+      .profile-picture {
+        width: 120px;
+        height: 120px;
+        border-radius: 50%;
+        border: 4px solid white;
+        box-shadow: var(--shadow);
+        transition: all 0.3s ease;
+      }
 
-        .profile-picture:hover {
-            transform: scale(1.1);
-        }
+      .profile-picture:hover {
+        transform: scale(1.1);
+      }
 
-        .progress {
-            height: 12px;
-            border-radius: 6px;
-            background: rgba(99, 102, 241, 0.1);
-        }
+      .progress {
+        height: 12px;
+        border-radius: 6px;
+        background: rgba(99, 102, 241, 0.1);
+      }
 
-        .progress-bar {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            border-radius: 6px;
-        }
+      .progress-bar {
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        border-radius: 6px;
+      }
 
-        .attendance-form {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
-            border-radius: var(--border-radius);
-            padding: 2rem;
-            border: 1px solid rgba(99, 102, 241, 0.2);
-        }
+      .attendance-form {
+        background: linear-gradient(
+          135deg,
+          rgba(99, 102, 241, 0.1),
+          rgba(139, 92, 246, 0.1)
+        );
+        border-radius: var(--border-radius);
+        padding: 2rem;
+        border: 1px solid rgba(99, 102, 241, 0.2);
+      }
 
-        .floating-action {
-            position: fixed;
-            bottom: 2rem;
-            right: 2rem;
-            z-index: 1000;
-        }
+      .floating-action {
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+        z-index: 1000;
+      }
 
-        .floating-btn {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            color: white;
-            border: none;
-            box-shadow: var(--shadow-hover);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-        }
+      .floating-btn {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        background: linear-gradient(
+          135deg,
+          var(--primary-color),
+          var(--secondary-color)
+        );
+        color: white;
+        border: none;
+        box-shadow: var(--shadow-hover);
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+      }
 
-        .floating-btn:hover {
-            transform: scale(1.1);
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
-        }
+      .floating-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+      }
 
-        .search-box {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 12px;
-            padding: 12px 20px;
-            color: white;
-            backdrop-filter: blur(10px);
-        }
+      .search-box {
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 12px 20px;
+        color: white;
+        backdrop-filter: blur(10px);
+      }
 
-        .search-box::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
+      .search-box::placeholder {
+        color: rgba(255, 255, 255, 0.7);
+      }
 
-        .search-box:focus {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.4);
-            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
-        }
+      .search-box:focus {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.4);
+        box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+      }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
         }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
 
-        .animate-fade-in-up {
-            animation: fadeInUp 0.6s ease-out;
-        }
+      .animate-fade-in-up {
+        animation: fadeInUp 0.6s ease-out;
+      }
 
-        .pulse {
-            animation: pulse 2s infinite;
-        }
+      .pulse {
+        animation: pulse 2s infinite;
+      }
 
-        @keyframes pulse {
-            0% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-            100% {
-                transform: scale(1);
-            }
+      @keyframes pulse {
+        0% {
+          transform: scale(1);
         }
+        50% {
+          transform: scale(1.05);
+        }
+        100% {
+          transform: scale(1);
+        }
+      }
     </style>
-</head>
-<body>
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    const userType = localStorage.getItem('userType');
-    const userEmail = localStorage.getItem('userEmail');
-    
-    // If no user is logged in, redirect to login
-    if (!userType || !userEmail) {
-      window.location.href = 'login.html';
-      return;
-    }
-    
-    // If user is not a student, redirect to login
-    if (userType !== 'student') {
-      window.location.href = 'login.html';
-      return;
-    }
-    
-    // If user is a student, show the dashboard
-    document.getElementById('dashboard').style.display = 'block';
-    
-    // Initialize student dashboard
-    if (window.studentDashboard) {
-      window.studentDashboard.init();
-    }
-  });
-</script>
-    <!-- Login Modal -->
-    <!-- <div class="modal fade" id="loginModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content glass-effect">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold">Welcome Back!</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="text-center mb-4">
-                        <i class="fas fa-graduation-cap fa-3x text-primary mb-3"></i>
-                        <h4 class="fw-bold">Student Portal</h4>
-                        <p class="text-muted">Sign in to access your dashboard</p>
-                    </div>
-                    <form id="loginForm">
-                        <div class="mb-3">
-                            <label for="username" class="form-label fw-semibold">Email Address</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-0">
-                                    <i class="fas fa-envelope text-muted"></i>
-                                </span>
-                                <input type="email" class="form-control border-0 bg-light" id="username" name="username" required>
-                            </div>
-                        </div>
-                        <div class="mb-4">
-                            <label for="password" class="form-label fw-semibold">Password</label>
-                            <div class="input-group">
-                                <span class="input-group-text bg-light border-0">
-                                    <i class="fas fa-lock text-muted"></i>
-                                </span>
-                                <input type="password" class="form-control border-0 bg-light" id="password" name="password" required>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-modern w-100">
-                            <i class="fas fa-sign-in-alt me-2"></i>Sign In
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div> -->
+  </head>
+  <body>
+    <!-- Session Check -->
+    <script>
+      // Check if user is authenticated and is student
+      document.addEventListener("DOMContentLoaded", () => {
+        const token = sessionStorage.getItem("token");
+        const userType = sessionStorage.getItem("userType");
+        const userData = sessionStorage.getItem("userData");
+
+        if (!token || !userType || !userData) {
+          // No valid session, redirect to login
+          window.location.href = "index.html";
+          return;
+        }
+
+        if (userType !== "student") {
+          // User is not student, redirect to appropriate page
+          if (userType === "admin") {
+            window.location.href = "Admin-dashboard.html";
+          } else {
+            window.location.href = "index.html";
+          }
+          return;
+        }
+
+        // User is authenticated student, show dashboard
+        document.getElementById("studentDashboard").style.display = "block";
+      });
+    </script>
 
     <!-- Main Dashboard -->
-    <div class="container-fluid" id="dashboard" style="display: none;">
-        <!-- Top Navigation -->
-        <nav class="navbar navbar-expand-lg">
-            <div class="container-fluid" style="height: 70px;">
-                <a class="navbar-brand animate-fade-in-up" href="#">
-                    <i class="fas fa-graduation-cap me-2"></i>Student Portal
-                </a>
-                <div class="d-flex align-items-center animate-fade-in-up">
-                    <div class="text-white me-3" id="userInfo">
-                        <!-- Will be populated by auth.js -->
-                    </div>
-                    <button class="btn btn-outline-light btn-modern" id="logoutBtn" onclick="logout()">
-                        <i class="fas fa-sign-out-alt me-2"></i>Logout
-                    </button>
-                </div>
+    <div class="container-fluid" id="studentDashboard" style="display: none">
+      <!-- Top Navigation -->
+      <nav class="navbar navbar-expand-lg">
+        <div class="container-fluid" style="height: 70px">
+          <a class="navbar-brand animate-fade-in-up" href="#">
+            <i class="fas fa-graduation-cap me-2"></i>Student Portal
+          </a>
+          <div class="d-flex align-items-center animate-fade-in-up">
+            <div class="text-white me-3" id="userInfo">
+              <!-- Will be populated by auth.js -->
             </div>
-        </nav>
-
-        <!-- Main Content -->
-        <div class="container mt-4">
-            <!-- Progress Overview -->
-            <div class="row mb-5 animate-fade-in-up">
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="stats-card pulse">
-                        <div class="stats-number" id="completedTasks">0</div>
-                        <div class="stats-label">Tasks Completed</div>
-                        <small class="opacity-75">out of <span id="totalTasks">0</span> tasks</small>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="stats-card success pulse">
-                        <div class="stats-number" id="attendanceRate">0%</div>
-                        <div class="stats-label">Attendance Rate</div>
-                        <small class="opacity-75">Current semester</small>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="stats-card info pulse">
-                        <div class="stats-number" id="averageGrade">0%</div>
-                        <div class="stats-label">Average Grade</div>
-                        <small class="opacity-75">All submissions</small>
-                    </div>
-                </div>
-                <div class="col-lg-3 col-md-6 mb-4">
-                    <div class="stats-card warning pulse">
-                        <div class="stats-number" id="upcomingTasks">0</div>
-                        <div class="stats-label">Upcoming Tasks</div>
-                        <small class="opacity-75">Due this week</small>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Main Content Tabs -->
-            <ul class="nav nav-tabs mb-4" id="studentTabs" role="tablist">
-                <li class="nav-item">
-                    <a class="nav-link active" id="tasks-tab" data-bs-toggle="tab" href="#tasks" role="tab">
-                        <i class="fas fa-tasks me-2"></i>My Tasks
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="attendance-tab" data-bs-toggle="tab" href="#attendance" role="tab">
-                        <i class="fas fa-calendar-check me-2"></i>Attendance
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="submissions-tab" data-bs-toggle="tab" href="#submissions" role="tab">
-                        <i class="fas fa-file-alt me-2"></i>Submissions
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link" id="profile-tab" data-bs-toggle="tab" href="#profile" role="tab">
-                        <i class="fas fa-user me-2"></i>Profile
-                    </a>
-                </li>
-            </ul>
-
-            <!-- Tab Content -->
-            <div class="tab-content" id="studentTabContent">
-                <!-- Tasks Tab -->
-                <div class="tab-pane fade show active" id="tasks" role="tabpanel">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="row mb-4">
-                                <div class="col-md-8">
-                                    <div class="input-group">
-                                        <span class="input-group-text bg-light border-0">
-                                            <i class="fas fa-search text-muted"></i>
-                                        </span>
-                                        <input type="text" class="form-control border-0 bg-light" placeholder="Search tasks...">
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <select class="form-select bg-light border-0">
-                                        <option value="all">All Tasks</option>
-                                        <option value="completed">Completed</option>
-                                        <option value="pending">Pending</option>
-                                        <option value="upcoming">Upcoming</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th><i class="fas fa-tasks me-2"></i>Task</th>
-                                            <th><i class="fas fa-calendar me-2"></i>Due Date</th>
-                                            <th><i class="fas fa-exclamation-triangle me-2"></i>Priority</th>
-                                            <th><i class="fas fa-info-circle me-2"></i>Status</th>
-                                            <th><i class="fas fa-cogs me-2"></i>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="studentTasksTableBody"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Attendance Tab -->
-                <div class="tab-pane fade" id="attendance" role="tabpanel">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="attendance-status mb-4">
-                                <h4 class="fw-bold">
-                                    <i class="fas fa-clock me-2"></i>Attendance Status: 
-                                    <span id="studentAttendanceStatus" class="badge bg-secondary">Closed</span>
-                                </h4>
-                            </div>
-                            
-                            <!-- Attendance Form -->
-                            <div id="attendanceForm" style="display: none;">
-                                <div class="attendance-form">
-                                    <h5 class="fw-bold mb-4">
-                                        <i class="fas fa-check-circle me-2"></i>Mark Your Attendance
-                                    </h5>
-                                    <form id="studentAttendanceForm">
-                                        <div class="row mb-4">
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-semibold">Date</label>
-                                                <input type="date" id="studentAttendanceDate" class="form-control bg-light border-0" readonly>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label fw-semibold">Session</label>
-                                                <select id="studentAttendanceSession" class="form-select bg-light border-0" readonly>
-                                                    <option value="morning">Morning</option>
-                                                    <option value="afternoon">Afternoon</option>
-                                                    <option value="evening">Evening</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="mb-4">
-                                            <label class="form-label fw-semibold">Your Status</label>
-                                            <div class="d-flex gap-3 flex-wrap">
-                                                <button type="button" class="btn btn-success btn-modern" onclick="studentDashboard.markAttendance('present')">
-                                                    <i class="fas fa-check me-2"></i>Present
-                                                </button>
-                                                <button type="button" class="btn btn-warning btn-modern" onclick="studentDashboard.markAttendance('late')">
-                                                    <i class="fas fa-clock me-2"></i>Late
-                                                </button>
-                                                <button type="button" class="btn btn-danger btn-modern" onclick="studentDashboard.markAttendance('absent')">
-                                                    <i class="fas fa-times me-2"></i>Absent
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-
-                            <!-- Attendance History -->
-                            <div class="mt-5">
-                                <h5 class="fw-bold mb-4">
-                                    <i class="fas fa-history me-2"></i>Your Attendance History
-                                </h5>
-                                <div class="table-responsive">
-                                    <table class="table">
-                                        <thead>
-                                            <tr>
-                                                <th><i class="fas fa-calendar me-2"></i>Date</th>
-                                                <th><i class="fas fa-clock me-2"></i>Session</th>
-                                                <th><i class="fas fa-info-circle me-2"></i>Status</th>
-                                                <th><i class="fas fa-time me-2"></i>Time</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="studentAttendanceTableBody"></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Submissions Tab -->
-                <div class="tab-pane fade" id="submissions" role="tabpanel">
-                    <div class="card">
-                        <div class="card-body">
-                            <div class="table-responsive">
-                                <table class="table">
-                                    <thead>
-                                        <tr>
-                                            <th><i class="fas fa-file-alt me-2"></i>Task</th>
-                                            <th><i class="fas fa-upload me-2"></i>Submitted</th>
-                                            <th><i class="fas fa-info-circle me-2"></i>Status</th>
-                                            <th><i class="fas fa-star me-2"></i>Grade</th>
-                                            <th><i class="fas fa-comment me-2"></i>Feedback</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="studentSubmissionsTableBody"></tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Profile Tab -->
-                <div class="tab-pane fade" id="profile" role="tabpanel">
-                    <div class="row">
-                        <div class="col-lg-4 mb-4">
-                            <div class="card text-center">
-                                <div class="card-body">
-                                    <img src="https://ui-avatars.com/api/?name=Student&background=6366f1&color=fff&size=200" 
-                                         alt="Profile Picture" 
-                                         class="profile-picture mb-4">
-                                    <h4 id="studentName" class="fw-bold mb-2">Loading...</h4>
-                                    <p class="text-muted mb-4" id="studentEmail">Loading...</p>
-                                    <button class="btn btn-primary btn-modern" onclick="studentDashboard.editProfile()">
-                                        <i class="fas fa-edit me-2"></i>Edit Profile
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-8">
-                            <div class="card">
-                                <div class="card-body">
-                                    <h5 class="card-title fw-bold mb-4">
-                                        <i class="fas fa-chart-line me-2"></i>Academic Progress
-                                    </h5>
-                                    <div class="mb-4">
-                                        <div class="d-flex justify-content-between mb-2">
-                                            <span class="fw-semibold">Overall Progress</span>
-                                            <span class="text-primary fw-bold">75%</span>
-                                        </div>
-                                        <div class="progress">
-                                            <div class="progress-bar" role="progressbar" id="overallProgress" style="width: 75%"></div>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-md-6">
-                                            <h6 class="fw-bold mb-3">
-                                                <i class="fas fa-star me-2"></i>Recent Grades
-                                            </h6>
-                                            <ul class="list-group list-group-flush" id="recentGrades">
-                                                <!-- Will be populated by JavaScript -->
-                                            </ul>
-                                        </div>
-                                        <div class="col-md-6">
-                                            <h6 class="fw-bold mb-3">
-                                                <i class="fas fa-calendar-check me-2"></i>Attendance History
-                                            </h6>
-                                            <ul class="list-group list-group-flush" id="attendanceHistory">
-                                                <!-- Will be populated by JavaScript -->
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Floating Action Button -->
-        <div class="floating-action">
-            <button class="floating-btn" onclick="studentDashboard.showQuickActions()">
-                <i class="fas fa-plus"></i>
+            <button
+              class="btn btn-outline-light btn-modern"
+              id="logoutBtn"
+              onclick="logout()"
+            >
+              <i class="fas fa-sign-out-alt me-2"></i>Logout
             </button>
+          </div>
         </div>
+      </nav>
+
+      <!-- Main Content -->
+      <div class="container mt-4">
+        <!-- Progress Overview -->
+        <div class="row mb-5 animate-fade-in-up">
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card pulse">
+              <div class="stats-number" id="completedTasks">0</div>
+              <div class="stats-label">Tasks Completed</div>
+              <small class="opacity-75"
+                >out of <span id="totalTasks">0</span> tasks</small
+              >
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card success pulse">
+              <div class="stats-number" id="attendanceRate">0%</div>
+              <div class="stats-label">Attendance Rate</div>
+              <small class="opacity-75">Current semester</small>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card info pulse">
+              <div class="stats-number" id="averageGrade">0%</div>
+              <div class="stats-label">Average Grade</div>
+              <small class="opacity-75">All submissions</small>
+            </div>
+          </div>
+          <div class="col-lg-3 col-md-6 mb-4">
+            <div class="stats-card warning pulse">
+              <div class="stats-number" id="upcomingTasks">0</div>
+              <div class="stats-label">Upcoming Tasks</div>
+              <small class="opacity-75">Due this week</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- Main Content Tabs -->
+        <ul class="nav nav-tabs mb-4" id="studentTabs" role="tablist">
+          <li class="nav-item">
+            <a
+              class="nav-link active"
+              id="tasks-tab"
+              data-bs-toggle="tab"
+              href="#tasks"
+              role="tab"
+            >
+              <i class="fas fa-tasks me-2"></i>My Tasks
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              id="attendance-tab"
+              data-bs-toggle="tab"
+              href="#attendance"
+              role="tab"
+            >
+              <i class="fas fa-calendar-check me-2"></i>Attendance
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              id="submissions-tab"
+              data-bs-toggle="tab"
+              href="#submissions"
+              role="tab"
+            >
+              <i class="fas fa-file-alt me-2"></i>Submissions
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              id="profile-tab"
+              data-bs-toggle="tab"
+              href="#profile"
+              role="tab"
+            >
+              <i class="fas fa-user me-2"></i>Profile
+            </a>
+          </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="studentTabContent">
+          <!-- Tasks Tab -->
+          <div class="tab-pane fade show active" id="tasks" role="tabpanel">
+            <div class="card">
+              <div class="card-body">
+                <div class="row mb-4">
+                  <div class="col-md-8">
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0">
+                        <i class="fas fa-search text-muted"></i>
+                      </span>
+                      <input
+                        type="text"
+                        class="form-control border-0 bg-light"
+                        placeholder="Search tasks..."
+                        id="studentTaskSearch"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <select class="form-select bg-light border-0" id="studentTaskFilter">
+                      <option value="all">All Tasks</option>
+                      <option value="completed">Completed</option>
+                      <option value="pending">Pending</option>
+                      <option value="upcoming">Upcoming</option>
+                      <option value="overdue">Overdue</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="table-responsive">
+                  <table class="table modern-table" id="studentTasksTable">
+                    <thead class="table-header">
+                      <tr>
+                        <th class="sortable" data-sort="title">
+                          <div class="th-content">
+                            <i class="fas fa-tasks me-2"></i>Task
+                            <i class="fas fa-sort ms-1"></i>
+                          </div>
+                        </th>
+                        <th class="sortable" data-sort="dueDate">
+                          <div class="th-content">
+                            <i class="fas fa-calendar me-2"></i>Due Date
+                            <i class="fas fa-sort ms-1"></i>
+                          </div>
+                        </th>
+                        <th class="sortable" data-sort="priority">
+                          <div class="th-content">
+                            <i class="fas fa-exclamation-triangle me-2"></i>Priority
+                            <i class="fas fa-sort ms-1"></i>
+                          </div>
+                        </th>
+                        <th class="sortable" data-sort="status">
+                          <div class="th-content">
+                            <i class="fas fa-info-circle me-2"></i>Status
+                            <i class="fas fa-sort ms-1"></i>
+                          </div>
+                        </th>
+                        <th class="actions-header">
+                          <div class="th-content">
+                            <i class="fas fa-cogs me-2"></i>Actions
+                          </div>
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody id="studentTasksTableBody">
+                      <!-- Sample task data for students -->
+                      <tr class="table-row">
+                        <td>
+                          <div class="task-info">
+                            <div class="task-title">Complete Math Assignment</div>
+                            <div class="task-description">
+                              Solve all problems in Chapter 5 of the mathematics textbook. Include step-by-step solutions.
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="task-date">
+                            <div class="date">Dec 15, 2024</div>
+                            <div class="time">23:59</div>
+                            <div class="overdue-warning text-danger">
+                              <i class="fas fa-exclamation-triangle me-1"></i>Overdue
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="priority-indicator priority-high">
+                            <i class="fas fa-exclamation-triangle me-1"></i>High
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge status-badge overdue">
+                            <i class="fas fa-circle me-1"></i>Overdue
+                          </span>
+                        </td>
+                        <td>
+                          <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-success" title="Mark Complete">
+                              <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" title="View Details">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr class="table-row">
+                        <td>
+                          <div class="task-info">
+                            <div class="task-title">Science Project Presentation</div>
+                            <div class="task-description">
+                              Prepare a 10-minute presentation on renewable energy sources. Include visual aids and references.
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="task-date">
+                            <div class="date">Dec 20, 2024</div>
+                            <div class="time">14:00</div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="priority-indicator priority-medium">
+                            <i class="fas fa-minus me-1"></i>Medium
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge status-badge in-progress">
+                            <i class="fas fa-circle me-1"></i>In Progress
+                          </span>
+                        </td>
+                        <td>
+                          <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-success" title="Mark Complete">
+                              <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" title="View Details">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr class="table-row">
+                        <td>
+                          <div class="task-info">
+                            <div class="task-title">Literature Essay</div>
+                            <div class="task-description">
+                              Write a 1500-word essay analyzing the themes in "To Kill a Mockingbird". Use proper citations.
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="task-date">
+                            <div class="date">Dec 25, 2024</div>
+                            <div class="time">23:59</div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="priority-indicator priority-low">
+                            <i class="fas fa-arrow-down me-1"></i>Low
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge status-badge pending">
+                            <i class="fas fa-circle me-1"></i>Pending
+                          </span>
+                        </td>
+                        <td>
+                          <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-success" title="Mark Complete">
+                              <i class="fas fa-check"></i>
+                            </button>
+                            <button class="btn btn-sm btn-outline-info" title="View Details">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      <tr class="table-row">
+                        <td>
+                          <div class="task-info">
+                            <div class="task-title">History Research Paper</div>
+                            <div class="task-description">
+                              Research and write a paper on the Industrial Revolution's impact on modern society.
+                            </div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="task-date">
+                            <div class="date">Dec 18, 2024</div>
+                            <div class="time">23:59</div>
+                          </div>
+                        </td>
+                        <td>
+                          <div class="priority-indicator priority-high">
+                            <i class="fas fa-exclamation-triangle me-1"></i>High
+                          </div>
+                        </td>
+                        <td>
+                          <span class="badge status-badge completed">
+                            <i class="fas fa-circle me-1"></i>Completed
+                          </span>
+                        </td>
+                        <td>
+                          <div class="action-buttons">
+                            <button class="btn btn-sm btn-outline-info" title="View Details">
+                              <i class="fas fa-eye"></i>
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination-container">
+                  <div class="pagination-info">
+                    Showing <span id="studentTasksStart">1</span> to <span id="studentTasksEnd">4</span> of <span id="studentTasksTotal">4</span> tasks
+                  </div>
+                  <nav aria-label="Student tasks pagination">
+                    <ul class="pagination pagination-sm">
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1">Previous</a>
+                      </li>
+                      <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                      <li class="page-item disabled">
+                        <a class="page-link" href="#">Next</a>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Attendance Tab -->
+          <div class="tab-pane fade" id="attendance" role="tabpanel">
+            <div class="card">
+              <div class="card-body">
+                <div class="attendance-status mb-4">
+                  <h4 class="fw-bold">
+                    <i class="fas fa-clock me-2"></i>Attendance Status:
+                    <span
+                      id="studentAttendanceStatus"
+                      class="badge bg-secondary"
+                      >Closed</span
+                    >
+                  </h4>
+                </div>
+
+                <!-- Attendance Form -->
+                <div id="attendanceForm" style="display: none">
+                  <div class="attendance-form">
+                    <h5 class="fw-bold mb-4">
+                      <i class="fas fa-check-circle me-2"></i>Mark Your
+                      Attendance
+                    </h5>
+                    <form id="studentAttendanceForm">
+                      <div class="row mb-4">
+                        <div class="col-md-6">
+                          <label class="form-label fw-semibold">Date</label>
+                          <input
+                            type="date"
+                            id="studentAttendanceDate"
+                            class="form-control bg-light border-0"
+                            readonly
+                          />
+                        </div>
+                        <div class="col-md-6">
+                          <label class="form-label fw-semibold">Session</label>
+                          <select
+                            id="studentAttendanceSession"
+                            class="form-select bg-light border-0"
+                            readonly
+                          >
+                            <option value="morning">Morning</option>
+                            <option value="afternoon">Afternoon</option>
+                            <option value="evening">Evening</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div class="mb-4">
+                        <label class="form-label fw-semibold"
+                          >Your Status</label
+                        >
+                        <div class="d-flex gap-3 flex-wrap">
+                          <button
+                            type="button"
+                            class="btn btn-success btn-modern"
+                            onclick="studentDashboard.markAttendance('present')"
+                          >
+                            <i class="fas fa-check me-2"></i>Present
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-warning btn-modern"
+                            onclick="studentDashboard.markAttendance('late')"
+                          >
+                            <i class="fas fa-clock me-2"></i>Late
+                          </button>
+                          <button
+                            type="button"
+                            class="btn btn-danger btn-modern"
+                            onclick="studentDashboard.markAttendance('absent')"
+                          >
+                            <i class="fas fa-times me-2"></i>Absent
+                          </button>
+                        </div>
+                      </div>
+                    </form>
+                  </div>
+                </div>
+
+                <!-- Attendance History -->
+                <div class="mt-5">
+                  <h5 class="fw-bold mb-4">
+                    <i class="fas fa-history me-2"></i>Your Attendance History
+                  </h5>
+                  <div class="table-responsive">
+                    <table class="table">
+                      <thead>
+                        <tr>
+                          <th><i class="fas fa-calendar me-2"></i>Date</th>
+                          <th><i class="fas fa-clock me-2"></i>Session</th>
+                          <th><i class="fas fa-info-circle me-2"></i>Status</th>
+                          <th><i class="fas fa-time me-2"></i>Time</th>
+                        </tr>
+                      </thead>
+                      <tbody id="studentAttendanceTableBody"></tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Submissions Tab -->
+          <div class="tab-pane fade" id="submissions" role="tabpanel">
+            <div class="card">
+              <div class="card-body">
+                <div class="table-responsive">
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th><i class="fas fa-file-alt me-2"></i>Task</th>
+                        <th><i class="fas fa-upload me-2"></i>Submitted</th>
+                        <th><i class="fas fa-info-circle me-2"></i>Status</th>
+                        <th><i class="fas fa-star me-2"></i>Grade</th>
+                        <th><i class="fas fa-comment me-2"></i>Feedback</th>
+                      </tr>
+                    </thead>
+                    <tbody id="studentSubmissionsTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Profile Tab -->
+          <div class="tab-pane fade" id="profile" role="tabpanel">
+            <div class="row">
+              <div class="col-lg-4 mb-4">
+                <div class="card text-center">
+                  <div class="card-body">
+                    <img
+                      src="https://ui-avatars.com/api/?name=Student&background=6366f1&color=fff&size=200"
+                      alt="Profile Picture"
+                      class="profile-picture mb-4"
+                    />
+                    <h4 id="studentName" class="fw-bold mb-2">Loading...</h4>
+                    <p class="text-muted mb-4" id="studentEmail">Loading...</p>
+                    <button
+                      class="btn btn-primary btn-modern"
+                      onclick="studentDashboard.editProfile()"
+                    >
+                      <i class="fas fa-edit me-2"></i>Edit Profile
+                    </button>
+                  </div>
+                </div>
+              </div>
+              <div class="col-lg-8">
+                <div class="card">
+                  <div class="card-body">
+                    <h5 class="card-title fw-bold mb-4">
+                      <i class="fas fa-chart-line me-2"></i>Academic Progress
+                    </h5>
+                    <div class="mb-4">
+                      <div class="d-flex justify-content-between mb-2">
+                        <span class="fw-semibold">Overall Progress</span>
+                        <span class="text-primary fw-bold">75%</span>
+                      </div>
+                      <div class="progress">
+                        <div
+                          class="progress-bar"
+                          role="progressbar"
+                          id="overallProgress"
+                          style="width: 75%"
+                        ></div>
+                      </div>
+                    </div>
+                    <div class="row">
+                      <div class="col-md-6">
+                        <h6 class="fw-bold mb-3">
+                          <i class="fas fa-star me-2"></i>Recent Grades
+                        </h6>
+                        <ul
+                          class="list-group list-group-flush"
+                          id="recentGrades"
+                        >
+                          <!-- Will be populated by JavaScript -->
+                        </ul>
+                      </div>
+                      <div class="col-md-6">
+                        <h6 class="fw-bold mb-3">
+                          <i class="fas fa-calendar-check me-2"></i>Attendance
+                          History
+                        </h6>
+                        <ul
+                          class="list-group list-group-flush"
+                          id="attendanceHistory"
+                        >
+                          <!-- Will be populated by JavaScript -->
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Floating Action Button -->
+      <div class="floating-action">
+        <button
+          class="floating-btn"
+          onclick="studentDashboard.showQuickActions()"
+        >
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
     </div>
 
     <!-- Edit Profile Modal -->
     <div class="modal fade" id="editProfileModal" tabindex="-1">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content glass-effect">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold">
-                        <i class="fas fa-user-edit me-2"></i>Edit Profile
-                    </h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="editProfileForm">
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Full Name</label>
-                            <input type="text" class="form-control bg-light border-0" id="editName" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Email</label>
-                            <input type="email" class="form-control bg-light border-0" id="editEmail" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">New Password</label>
-                            <input type="password" class="form-control bg-light border-0" id="editPassword">
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">Confirm Password</label>
-                            <input type="password" class="form-control bg-light border-0" id="editConfirmPassword">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer border-0">
-                    <button type="button" class="btn btn-secondary btn-modern" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-primary btn-modern" onclick="studentDashboard.saveProfile()">
-                        <i class="fas fa-save me-2"></i>Save Changes
-                    </button>
-                </div>
-            </div>
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content glass-effect">
+          <div class="modal-header border-0">
+            <h5 class="modal-title fw-bold">
+              <i class="fas fa-user-edit me-2"></i>Edit Profile
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form id="editProfileForm">
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Full Name</label>
+                <input
+                  type="text"
+                  class="form-control bg-light border-0"
+                  id="editName"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">Email</label>
+                <input
+                  type="email"
+                  class="form-control bg-light border-0"
+                  id="editEmail"
+                  required
+                />
+              </div>
+              <div class="mb-3">
+                <label class="form-label fw-semibold">New Password</label>
+                <input
+                  type="password"
+                  class="form-control bg-light border-0"
+                  id="editPassword"
+                />
+              </div>
+              <div class="mb-4">
+                <label class="form-label fw-semibold">Confirm Password</label>
+                <input
+                  type="password"
+                  class="form-control bg-light border-0"
+                  id="editConfirmPassword"
+                />
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer border-0">
+            <button
+              type="button"
+              class="btn btn-secondary btn-modern"
+              data-bs-dismiss="modal"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              class="btn btn-primary btn-modern"
+              onclick="studentDashboard.saveProfile()"
+            >
+              <i class="fas fa-save me-2"></i>Save Changes
+            </button>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    
+
     <!-- Custom JavaScript -->
     <script src="js/auth.js" defer></script>
     <script src="js/realtime-updates.js" defer></script>
     <script src="js/student-dashboard.js" defer></script>
-    
+
     <script>
-        // Initialize student dashboard
-        let studentDashboard;
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            studentDashboard = new StudentDashboard();
-        });
-        
-        // Logout function
-        function logout() {
-            localStorage.removeItem('userType');
-            localStorage.removeItem('userEmail');
-            localStorage.removeItem('token');
-            localStorage.removeItem('userData');
-            window.location.href = 'login.html';
-        }
-        
-        // Global function for student dashboard actions
-        window.studentDashboard = {
-            markAttendance: function(status) {
-                if (studentDashboard) {
-                    studentDashboard.markAttendance(status);
-                }
-            },
-            editProfile: function() {
-                if (studentDashboard) {
-                    studentDashboard.editProfile();
-                }
-            },
-            saveProfile: function() {
-                if (studentDashboard) {
-                    studentDashboard.saveProfile();
-                }
-            },
-            showQuickActions: function() {
-                alert('Quick actions coming soon!');
-            }
-        };
+      // Initialize student dashboard
+      let studentDashboard;
+
+      document.addEventListener("DOMContentLoaded", function () {
+        studentDashboard = new StudentDashboard();
+      });
+
+      // Logout function
+      function logout() {
+        sessionStorage.removeItem("token");
+        sessionStorage.removeItem("userType");
+        sessionStorage.removeItem("userEmail");
+        sessionStorage.removeItem("userData");
+        window.location.href = "index.html";
+      }
+
+      // Global function for student dashboard actions
+      window.studentDashboard = {
+        markAttendance: function (status) {
+          if (studentDashboard) {
+            studentDashboard.markAttendance(status);
+          }
+        },
+        editProfile: function () {
+          if (studentDashboard) {
+            studentDashboard.editProfile();
+          }
+        },
+        saveProfile: function () {
+          if (studentDashboard) {
+            studentDashboard.saveProfile();
+          }
+        },
+        showQuickActions: function () {
+          alert("Quick actions coming soon!");
+        },
+      };
     </script>
-</body>
-</html> 
+  </body>
+</html>

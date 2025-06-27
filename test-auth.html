@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Authentication Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        button:hover { background: #0056b3; }
+        .logout { background: #dc3545; }
+        .logout:hover { background: #c82333; }
+        pre {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 Authentication System Test</h1>
+    
+    <div class="test-card">
+        <h3>Current Session Status</h3>
+        <div id="sessionStatus">Loading...</div>
+        <div id="userInfo">Loading...</div>
+    </div>
+
+    <div class="test-card">
+        <h3>Test Actions</h3>
+        <button onclick="testAdminLogin()">Test Admin Login</button>
+        <button onclick="testStudentLogin()">Test Student Login</button>
+        <button onclick="testLogout()" class="logout">Test Logout</button>
+        <button onclick="checkAuth()">Check Authentication</button>
+        <button onclick="goToAdminDashboard()">Go to Admin Dashboard</button>
+        <button onclick="goToStudentDashboard()">Go to Student Dashboard</button>
+        <button onclick="goToLogin()">Go to Login Page</button>
+    </div>
+
+    <div class="test-card">
+        <h3>SessionStorage Content</h3>
+        <pre id="localStorageContent">Loading...</pre>
+    </div>
+
+    <script src="js/session-tracker.js"></script>
+    <script>
+        function updateDisplay() {
+            const token = sessionStorage.getItem('token');
+            const userType = sessionStorage.getItem('userType');
+            const userEmail = sessionStorage.getItem('userEmail');
+            const userData = sessionStorage.getItem('userData');
+
+            const sessionStatus = document.getElementById('sessionStatus');
+            const userInfo = document.getElementById('userInfo');
+            const localStorageContent = document.getElementById('localStorageContent');
+
+            // Update session status
+            if (token && userType && userData) {
+                sessionStatus.innerHTML = '<div class="status success">✅ User is logged in</div>';
+                userInfo.innerHTML = `
+                    <div class="status info">
+                        <strong>User Type:</strong> ${userType}<br>
+                        <strong>Email:</strong> ${userEmail}<br>
+                        <strong>Token:</strong> ${token.substring(0, 20)}...
+                    </div>
+                `;
+            } else {
+                sessionStatus.innerHTML = '<div class="status error">❌ No valid session found</div>';
+                userInfo.innerHTML = '<div class="status info">No user information available</div>';
+            }
+
+            // Update localStorage content
+            const allData = {};
+            for (let i = 0; i < sessionStorage.length; i++) {
+                const key = sessionStorage.key(i);
+                allData[key] = sessionStorage.getItem(key);
+            }
+            localStorageContent.textContent = JSON.stringify(allData, null, 2);
+        }
+
+        function testAdminLogin() {
+            const token = 'admin-token-' + Math.random().toString(36).substr(2);
+            sessionStorage.setItem('token', token);
+            sessionStorage.setItem('userType', 'admin');
+            sessionStorage.setItem('userEmail', 'admin@school.com');
+            sessionStorage.setItem('userData', JSON.stringify({
+                id: 'admin',
+                name: 'Admin',
+                email: 'admin@school.com',
+                type: 'admin'
+            }));
+            
+            // Track session
+            if (window.sessionTracker) {
+                window.sessionTracker.addSession({
+                    id: 'admin',
+                    type: 'admin',
+                    name: 'Admin',
+                    email: 'admin@school.com'
+                });
+            }
+            
+            updateDisplay();
+            alert('Admin login test completed!');
+        }
+
+        function testStudentLogin() {
+            const token = 'student-token-' + Math.random().toString(36).substr(2);
+            sessionStorage.setItem('token', token);
+            sessionStorage.setItem('userType', 'student');
+            sessionStorage.setItem('userEmail', 'student@school.com');
+            sessionStorage.setItem('userData', JSON.stringify({
+                id: 'student-1',
+                name: 'Student User',
+                email: 'student@school.com',
+                type: 'student'
+            }));
+            
+            // Track session
+            if (window.sessionTracker) {
+                window.sessionTracker.addSession({
+                    id: 'student-1',
+                    type: 'student',
+                    name: 'Student User',
+                    email: 'student@school.com'
+                });
+            }
+            
+            updateDisplay();
+            alert('Student login test completed!');
+        }
+
+        function testLogout() {
+            const sessionId = sessionStorage.getItem('currentSessionId');
+            if (sessionId && window.sessionTracker) {
+                window.sessionTracker.removeSession(sessionId);
+            }
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('userType');
+            sessionStorage.removeItem('userEmail');
+            sessionStorage.removeItem('userData');
+            sessionStorage.removeItem('currentSessionId');
+            updateDisplay();
+            alert('Logout test completed!');
+        }
+
+        function checkAuth() {
+            const token = sessionStorage.getItem('token');
+            const userType = sessionStorage.getItem('userType');
+            const userData = sessionStorage.getItem('userData');
+
+            if (!token || !userType || !userData) {
+                alert('❌ Authentication failed: Missing required data');
+                return false;
+            }
+
+            if (userType === 'admin') {
+                alert('✅ Admin authentication successful');
+                return true;
+            } else if (userType === 'student') {
+                alert('✅ Student authentication successful');
+                return true;
+            } else {
+                alert('❌ Invalid user type');
+                return false;
+            }
+        }
+
+        function goToAdminDashboard() {
+            if (checkAuth() && sessionStorage.getItem('userType') === 'admin') {
+                window.location.href = 'Admin-dashboard.html';
+            } else {
+                alert('Please login as admin first');
+            }
+        }
+
+        function goToStudentDashboard() {
+            if (checkAuth() && sessionStorage.getItem('userType') === 'student') {
+                window.location.href = 'student-dashboard.html';
+            } else {
+                alert('Please login as student first');
+            }
+        }
+
+        function goToLogin() {
+            window.location.href = 'index.html';
+        }
+
+        // Update display on page load
+        document.addEventListener('DOMContentLoaded', updateDisplay);
+
+        // Update display when sessionStorage changes
+        window.addEventListener('storage', updateDisplay);
+    </script>
+</body>
+</html> 
