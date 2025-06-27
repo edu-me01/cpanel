@@ -1,9 +1,11 @@
 // Attendance Management module
 class Attendance {
   constructor() {
-    this.isOpen = session.getItem("attendanceOpen") === "true";
+    this.isOpen = sessionStorage.getItem("attendanceOpen") === "true";
     this.currentDate = new Date().toISOString().split("T")[0];
-    this.currentSession = session.getItem("currentSession") || "morning";
+    this.currentSession = sessionStorage.getItem("currentSession") || "morning";
+    this.attendance = [];
+    this.students = [];
     this.init();
   }
 
@@ -25,21 +27,43 @@ class Attendance {
       );
     }
 
+    // Add event listeners for attendance buttons
+    this.setupEventListeners();
+
     // Update status display
     this.updateStatus();
 
     // Load initial attendance data
     this.loadAttendance();
+    this.loadStudents();
+  }
+
+  setupEventListeners() {
+    // Open attendance button
+    const openAttendanceBtn = document.getElementById("openAttendanceBtn");
+    if (openAttendanceBtn) {
+      openAttendanceBtn.addEventListener("click", () => this.openAttendance());
+    }
+
+    // Open attendance session button
+    const openAttendanceSessionBtn = document.getElementById("openAttendanceSessionBtn");
+    if (openAttendanceSessionBtn) {
+      openAttendanceSessionBtn.addEventListener("click", () => this.openAttendance());
+    }
   }
 
   openAttendance() {
-    if (!auth.checkAdminAuth()) return;
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      console.error("No authentication token found");
+      return;
+    }
 
     this.isOpen = true;
     this.updateStatus();
     this.loadAttendance();
-    session.setItem("attendanceOpen", "true");
-    session.setItem("currentSession", this.currentSession);
+    sessionStorage.setItem("attendanceOpen", "true");
+    sessionStorage.setItem("currentSession", this.currentSession);
 
     // Dispatch custom event for real-time updates
     window.dispatchEvent(
@@ -48,16 +72,20 @@ class Attendance {
       })
     );
 
-    auth.showNotification("Attendance is now open", "success");
+    this.showNotification("Attendance is now open", "success");
   }
 
   closeAttendance() {
-    if (!auth.checkAdminAuth()) return;
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      console.error("No authentication token found");
+      return;
+    }
 
     this.isOpen = false;
     this.updateStatus();
     this.loadAttendance();
-    session.setItem("attendanceOpen", "false");
+    sessionStorage.setItem("attendanceOpen", "false");
 
     // Dispatch custom event for real-time updates
     window.dispatchEvent(
@@ -66,7 +94,7 @@ class Attendance {
       })
     );
 
-    auth.showNotification("Attendance is now closed", "success");
+    this.showNotification("Attendance is now closed", "success");
   }
 
   updateStatus() {
@@ -87,26 +115,69 @@ class Attendance {
   handleSessionChange(session) {
     this.currentSession = session;
     this.loadAttendance();
-    session.setItem("currentSession", session);
+    sessionStorage.setItem("currentSession", session);
   }
 
-  loadAttendance() {
+  async loadStudents() {
+    try {
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        console.error("No authentication token found");
+        return;
+      }
+
+      const response = await fetch("/api/students", {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        this.students = await response.json();
+        this.loadAttendance();
+      } else {
+        console.error("Failed to load students");
+      }
+    } catch (error) {
+      console.error("Error loading students:", error);
+    }
+  }
+
+  async loadAttendance() {
+    try {
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        console.error("No authentication token found");
+        return;
+      }
+
+      const response = await fetch(`/api/attendance?date=${this.currentDate}`, {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        this.attendance = await response.json();
+        this.renderAttendance();
+      } else {
+        console.error("Failed to load attendance");
+      }
+    } catch (error) {
+      console.error("Error loading attendance:", error);
+    }
+  }
+
+  renderAttendance() {
     const tbody = document.getElementById("attendanceTableBody");
     if (!tbody) return;
 
-    // Get all students
-    const students = JSON.parse(session.getItem("students") || "[]");
-
-    // Get attendance records for current date and session
-    const attendance = JSON.parse(session.getItem("attendance") || "[]");
-    const todayAttendance = attendance.filter(
-      (a) => a.date === this.currentDate && a.session === this.currentSession
-    );
-
     tbody.innerHTML = "";
 
-    students.forEach((student) => {
-      const studentAttendance = todayAttendance.find(
+    this.students.forEach((student) => {
+      const studentAttendance = this.attendance.find(
         (a) => a.studentId === student.id
       );
       const tr = document.createElement("tr");
@@ -143,48 +214,63 @@ class Attendance {
   }
 
   markPresent(studentId) {
-    if (!this.isOpen || !auth.checkAdminAuth()) return;
-
+    if (!this.isOpen) return;
     this.updateAttendance(studentId, "present");
   }
 
   markLate(studentId) {
-    if (!this.isOpen || !auth.checkAdminAuth()) return;
-
+    if (!this.isOpen) return;
     this.updateAttendance(studentId, "late");
   }
 
   markAbsent(studentId) {
-    if (!this.isOpen || !auth.checkAdminAuth()) return;
-
+    if (!this.isOpen) return;
     this.updateAttendance(studentId, "absent");
   }
 
-  updateAttendance(studentId, status) {
-    const attendance = JSON.parse(session.getItem("attendance") || "[]");
+  async updateAttendance(studentId, status) {
+    try {
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        console.error("No authentication token found");
+        return;
+      }
 
-    // Remove any existing record for this student on this date and session
-    const filteredAttendance = attendance.filter(
-      (a) =>
-        !(
-          a.studentId === studentId &&
-          a.date === this.currentDate &&
-          a.session === this.currentSession
-        )
-    );
+      const student = this.students.find(s => s.id === studentId);
+      if (!student) {
+        this.showNotification("Student not found", "error");
+        return;
+      }
 
-    // Add new attendance record
-    filteredAttendance.push({
-      studentId,
-      date: this.currentDate,
-      session: this.currentSession,
-      status,
-      time: new Date().toLocaleTimeString(),
-    });
+      const attendanceData = {
+        studentId: studentId,
+        studentName: student.fullName,
+        date: this.currentDate,
+        status: status,
+        timeIn: new Date().toLocaleTimeString(),
+        notes: `Marked as ${status} by admin`
+      };
 
-    session.setItem("attendance", JSON.stringify(filteredAttendance));
-    this.loadAttendance();
-    auth.showNotification("Attendance updated", "success");
+      const response = await fetch("/api/attendance", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(attendanceData),
+      });
+
+      if (response.ok) {
+        await this.loadAttendance();
+        this.showNotification("Attendance updated", "success");
+      } else {
+        const errorData = await response.json();
+        this.showNotification(errorData.message || "Failed to update attendance", "error");
+      }
+    } catch (error) {
+      console.error("Error updating attendance:", error);
+      this.showNotification("Network error while updating attendance", "error");
+    }
   }
 
   getStatusColor(status) {
@@ -199,7 +285,28 @@ class Attendance {
         return "secondary";
     }
   }
+
+  showNotification(message, type = "info") {
+    // Create notification element
+    const notification = document.createElement("div");
+    notification.className = `alert alert-${type === "error" ? "danger" : type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = "top: 20px; right: 20px; z-index: 9999; min-width: 300px;";
+    notification.innerHTML = `
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    // Add to page
+    document.body.appendChild(notification);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+      }
+    }, 5000);
+  }
 }
 
-// Initialize attendance
+// Initialize attendance manager
 const attendance = new Attendance();

@@ -6,52 +6,56 @@ class StudentsManager {
   }
 
   init() {
-    // Load students from storage
+    // Load students from API
     this.loadStudents();
 
     // Add event listeners
-    document
-      .getElementById("addStudentForm")
-      .addEventListener("submit", (e) => this.handleAddStudent(e));
+    const addStudentForm = document.getElementById("addStudentForm");
+    if (addStudentForm) {
+      addStudentForm.addEventListener("submit", (e) => this.handleAddStudent(e));
+    }
 
     // Initialize search functionality
     const searchInput = document.querySelector(
       '#studentsSection input[type="text"]'
     );
-    searchInput.addEventListener("input", (e) =>
-      this.handleSearch(e.target.value)
-    );
-  }
-
-  loadStudents() {
-    // In production, this would be an API call
-    const storedStudents = session.getItem("students");
-    if (storedStudents) {
-      this.students = JSON.parse(storedStudents);
-    } else {
-      // Add some default students if none are in storage
-      this.students = [
-        {
-          id: "STU1672532600000-ABCDE",
-          fullName: "Test Student",
-          email: "student@school.com",
-          password: "student123",
-          active: true,
-          createdAt: new Date().toISOString(),
-        },
-      ];
-      this.saveStudents();
+    if (searchInput) {
+      searchInput.addEventListener("input", (e) =>
+        this.handleSearch(e.target.value)
+      );
     }
-    this.renderStudents();
   }
 
-  saveStudents() {
-    // In production, this would be an API call
-    session.setItem("students", JSON.stringify(this.students));
+  async loadStudents() {
+    try {
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        console.error("No authentication token found");
+        return;
+      }
+
+      const response = await fetch("/api/students", {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        this.students = await response.json();
+        this.renderStudents();
+      } else {
+        console.error("Failed to load students");
+      }
+    } catch (error) {
+      console.error("Error loading students:", error);
+    }
   }
 
   renderStudents(students = this.students) {
     const tbody = document.getElementById("studentsTableBody");
+    if (!tbody) return;
+    
     tbody.innerHTML = "";
 
     students.forEach((student) => {
@@ -97,51 +101,72 @@ class StudentsManager {
   async handleAddStudent(event) {
     event.preventDefault();
 
-    if (!auth.checkAuth()) return;
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      console.error("No authentication token found");
+      return;
+    }
 
     const form = event.target;
     const formData = new FormData(form);
 
     // Validate passwords match
     if (formData.get("password") !== formData.get("confirmPassword")) {
-      auth.showNotification("Passwords do not match", "error");
+      this.showNotification("Passwords do not match", "error");
       return;
     }
 
     try {
-      const student = {
-        id: this.generateStudentId(),
+      const studentData = {
         fullName: formData.get("fullName"),
         email: formData.get("email"),
-        password: formData.get("password"), // In production, use proper password hashing
-        active: true,
-        createdAt: new Date().toISOString(),
+        password: formData.get("password"),
       };
 
-      // In production, this would be an API call
-      this.students.push(student);
-      this.saveStudents();
-      this.renderStudents();
+      const response = await fetch("/api/students", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(studentData),
+      });
 
-      // Close modal and reset form
-      const modal = bootstrap.Modal.getInstance(
-        document.getElementById("addStudentModal")
-      );
-      modal.hide();
-      form.reset();
+      if (response.ok) {
+        const newStudent = await response.json();
+        this.students.push(newStudent);
+        this.renderStudents();
 
-      auth.showNotification("Student added successfully", "success");
+        // Close modal and reset form
+        const modal = bootstrap.Modal.getInstance(
+          document.getElementById("addStudentModal")
+        );
+        if (modal) {
+          modal.hide();
+        }
+        form.reset();
+
+        this.showNotification("Student added successfully", "success");
+      } else {
+        const errorData = await response.json();
+        this.showNotification(errorData.message || "Failed to add student", "error");
+      }
     } catch (error) {
-      auth.showNotification(error.message, "error");
+      console.error("Error adding student:", error);
+      this.showNotification("Network error while adding student", "error");
     }
   }
 
   editStudent(id) {
-    if (!auth.checkAuth()) return;
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      console.error("No authentication token found");
+      return;
+    }
 
     const student = this.students.find((s) => s.id === id);
     if (!student) {
-      auth.showNotification("Student not found", "error");
+      this.showNotification("Student not found", "error");
       return;
     }
 
@@ -150,26 +175,45 @@ class StudentsManager {
   }
 
   async deleteStudent(id) {
-    if (!auth.checkAuth()) return;
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      console.error("No authentication token found");
+      return;
+    }
 
     if (!confirm("Are you sure you want to delete this student?")) {
       return;
     }
 
     try {
-      // In production, this would be an API call
-      this.students = this.students.filter((s) => s.id !== id);
-      this.saveStudents();
-      this.renderStudents();
+      const response = await fetch(`/api/students/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-      auth.showNotification("Student deleted successfully", "success");
+      if (response.ok) {
+        this.students = this.students.filter((s) => s.id !== id);
+        this.renderStudents();
+        this.showNotification("Student deleted successfully", "success");
+      } else {
+        const errorData = await response.json();
+        this.showNotification(errorData.message || "Failed to delete student", "error");
+      }
     } catch (error) {
-      auth.showNotification(error.message, "error");
+      console.error("Error deleting student:", error);
+      this.showNotification("Network error while deleting student", "error");
     }
   }
 
   async toggleStudentStatus(id) {
-    if (!auth.checkAuth()) return;
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      console.error("No authentication token found");
+      return;
+    }
 
     try {
       const student = this.students.find((s) => s.id === id);
@@ -177,17 +221,31 @@ class StudentsManager {
         throw new Error("Student not found");
       }
 
-      // In production, this would be an API call
-      student.active = !student.active;
-      this.saveStudents();
-      this.renderStudents();
+      const response = await fetch(`/api/students/${id}`, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          active: !student.active,
+        }),
+      });
 
-      auth.showNotification(
-        `Student ${student.active ? "activated" : "deactivated"} successfully`,
-        "success"
-      );
+      if (response.ok) {
+        student.active = !student.active;
+        this.renderStudents();
+        this.showNotification(
+          `Student ${student.active ? "activated" : "deactivated"} successfully`,
+          "success"
+        );
+      } else {
+        const errorData = await response.json();
+        this.showNotification(errorData.message || "Failed to update student status", "error");
+      }
     } catch (error) {
-      auth.showNotification(error.message, "error");
+      console.error("Error updating student status:", error);
+      this.showNotification("Network error while updating student status", "error");
     }
   }
 
@@ -202,25 +260,40 @@ class StudentsManager {
   }
 
   generateStudentId() {
-    // Generate a unique student ID
-    const timestamp = Date.now().toString(36);
-    const random = Math.random().toString(36).substr(2, 5);
-    return `STU-${timestamp}-${random}`.toUpperCase();
+    return "STU" + Date.now() + "-" + Math.random().toString(36).substr(2, 5).toUpperCase();
   }
 
-  // Get student by ID
   getStudent(id) {
     return this.students.find((s) => s.id === id);
   }
 
-  // Get all students
   getAllStudents() {
     return this.students;
   }
 
-  // Get active students
   getActiveStudents() {
     return this.students.filter((s) => s.active);
+  }
+
+  showNotification(message, type = "info") {
+    // Create notification element
+    const notification = document.createElement("div");
+    notification.className = `alert alert-${type === "error" ? "danger" : type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = "top: 20px; right: 20px; z-index: 9999; min-width: 300px;";
+    notification.innerHTML = `
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    // Add to page
+    document.body.appendChild(notification);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+      }
+    }, 5000);
   }
 }
 

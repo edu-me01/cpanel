@@ -17,50 +17,63 @@ class SettingsManager {
     this.loadSettings();
 
     // Add event listeners
-    document
-      .getElementById("settingsForm")
-      .addEventListener("submit", (e) => this.handleSaveSettings(e));
+    const settingsForm = document.getElementById("settingsForm");
+    if (settingsForm) {
+      settingsForm.addEventListener("submit", (e) => this.handleSaveSettings(e));
+    }
 
     // Initialize theme toggle
     const themeToggle = document.getElementById("themeToggle");
-    themeToggle.addEventListener("change", (e) =>
-      this.handleThemeChange(e.target.checked)
-    );
+    if (themeToggle) {
+      themeToggle.addEventListener("change", (e) =>
+        this.handleThemeChange(e.target.checked)
+      );
+    }
 
     // Initialize notification toggle
     const notificationToggle = document.getElementById("notificationToggle");
-    notificationToggle.addEventListener("change", (e) =>
-      this.handleNotificationChange(e.target.checked)
-    );
+    if (notificationToggle) {
+      notificationToggle.addEventListener("change", (e) =>
+        this.handleNotificationChange(e.target.checked)
+      );
+    }
 
     // Initialize auto-save toggle
     const autoSaveToggle = document.getElementById("autoSaveToggle");
-    autoSaveToggle.addEventListener("change", (e) =>
-      this.handleAutoSaveChange(e.target.checked)
-    );
+    if (autoSaveToggle) {
+      autoSaveToggle.addEventListener("change", (e) =>
+        this.handleAutoSaveChange(e.target.checked)
+      );
+    }
 
     // Initialize language select
     const languageSelect = document.getElementById("languageSelect");
-    languageSelect.addEventListener("change", (e) =>
-      this.handleLanguageChange(e.target.value)
-    );
+    if (languageSelect) {
+      languageSelect.addEventListener("change", (e) =>
+        this.handleLanguageChange(e.target.value)
+      );
+    }
 
     // Initialize date format select
     const dateFormatSelect = document.getElementById("dateFormatSelect");
-    dateFormatSelect.addEventListener("change", (e) =>
-      this.handleDateFormatChange(e.target.value)
-    );
+    if (dateFormatSelect) {
+      dateFormatSelect.addEventListener("change", (e) =>
+        this.handleDateFormatChange(e.target.value)
+      );
+    }
 
     // Initialize time format select
     const timeFormatSelect = document.getElementById("timeFormatSelect");
-    timeFormatSelect.addEventListener("change", (e) =>
-      this.handleTimeFormatChange(e.target.value)
-    );
+    if (timeFormatSelect) {
+      timeFormatSelect.addEventListener("change", (e) =>
+        this.handleTimeFormatChange(e.target.value)
+      );
+    }
   }
 
   loadSettings() {
-    // Load settings from session
-    const storedSettings = session.getItem("settings");
+    // Load settings from sessionStorage
+    const storedSettings = sessionStorage.getItem("settings");
     if (storedSettings) {
       this.settings = JSON.parse(storedSettings);
     }
@@ -70,8 +83,8 @@ class SettingsManager {
   }
 
   saveSettings() {
-    // Save settings to session
-    session.setItem("settings", JSON.stringify(this.settings));
+    // Save settings to sessionStorage
+    sessionStorage.setItem("settings", JSON.stringify(this.settings));
   }
 
   applySettings() {
@@ -82,34 +95,55 @@ class SettingsManager {
     document.documentElement.setAttribute("lang", this.settings.language);
 
     // Update form values
-    document.getElementById("themeToggle").checked =
-      this.settings.theme === "dark";
-    document.getElementById(
-      "notificationToggle"
-    ).checked = this.settings.notifications;
-    document.getElementById("autoSaveToggle").checked = this.settings.autoSave;
-    document.getElementById("languageSelect").value = this.settings.language;
-    document.getElementById(
-      "dateFormatSelect"
-    ).value = this.settings.dateFormat;
-    document.getElementById(
-      "timeFormatSelect"
-    ).value = this.settings.timeFormat;
+    const themeToggle = document.getElementById("themeToggle");
+    if (themeToggle) {
+      themeToggle.checked = this.settings.theme === "dark";
+    }
+
+    const notificationToggle = document.getElementById("notificationToggle");
+    if (notificationToggle) {
+      notificationToggle.checked = this.settings.notifications;
+    }
+
+    const autoSaveToggle = document.getElementById("autoSaveToggle");
+    if (autoSaveToggle) {
+      autoSaveToggle.checked = this.settings.autoSave;
+    }
+
+    const languageSelect = document.getElementById("languageSelect");
+    if (languageSelect) {
+      languageSelect.value = this.settings.language;
+    }
+
+    const dateFormatSelect = document.getElementById("dateFormatSelect");
+    if (dateFormatSelect) {
+      dateFormatSelect.value = this.settings.dateFormat;
+    }
+
+    const timeFormatSelect = document.getElementById("timeFormatSelect");
+    if (timeFormatSelect) {
+      timeFormatSelect.value = this.settings.timeFormat;
+    }
   }
 
   async handleSaveSettings(event) {
     event.preventDefault();
 
-    if (!auth.checkAuth()) return;
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      console.error("No authentication token found");
+      return;
+    }
 
     try {
       // Save all settings
       this.saveSettings();
       this.applySettings();
 
-      auth.showNotification("Settings saved successfully", "success");
+      this.showNotification("Settings saved successfully", "success");
     } catch (error) {
-      auth.showNotification(error.message, "error");
+      console.error("Error saving settings:", error);
+      this.showNotification("Error saving settings", "error");
     }
   }
 
@@ -219,6 +253,27 @@ class SettingsManager {
         hour12: false,
       });
     }
+  }
+
+  showNotification(message, type = "info") {
+    // Create notification element
+    const notification = document.createElement("div");
+    notification.className = `alert alert-${type === "error" ? "danger" : type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = "top: 20px; right: 20px; z-index: 9999; min-width: 300px;";
+    notification.innerHTML = `
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    // Add to page
+    document.body.appendChild(notification);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+      }
+    }, 5000);
   }
 }
 

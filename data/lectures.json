@@ -1,0 +1,28 @@
+[
+    {
+        "id": "lecture_1",
+        "title": "Introduction to Web Development",
+        "content": "This lecture covers the basics of HTML, CSS, and JavaScript.",
+        "category": "web-development",
+        "date": "2025-06-27",
+        "duration": 60,
+        "videoUrl": null,
+        "attachments": [],
+        "createdBy": "admin_1",
+        "createdAt": "2025-06-27T12:07:39+00:00",
+        "status": "active"
+    },
+    {
+        "id": "lecture_2",
+        "title": "Advanced JavaScript Concepts",
+        "content": "Learn about closures, promises, and async\/await.",
+        "category": "web-development",
+        "date": "2025-06-26",
+        "duration": 90,
+        "videoUrl": null,
+        "attachments": [],
+        "createdBy": "admin_1",
+        "createdAt": "2025-06-26T12:07:39+00:00",
+        "status": "active"
+    }
+]

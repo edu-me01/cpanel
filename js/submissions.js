@@ -6,43 +6,64 @@ class SubmissionsManager {
   }
 
   init() {
-    // Load submissions from storage
+    // Load submissions from API
     this.loadSubmissions();
 
     // Add event listeners
-    document
-      .getElementById("gradeSubmissionForm")
-      .addEventListener("submit", (e) => this.handleGradeSubmission(e));
+    const gradeSubmissionForm = document.getElementById("gradeSubmissionForm");
+    if (gradeSubmissionForm) {
+      gradeSubmissionForm.addEventListener("submit", (e) => this.handleGradeSubmission(e));
+    }
 
     // Initialize search functionality
     const searchInput = document.querySelector(
       '#submissionsSection input[type="text"]'
     );
-    searchInput.addEventListener("input", (e) =>
-      this.handleSearch(e.target.value)
-    );
+    if (searchInput) {
+      searchInput.addEventListener("input", (e) =>
+        this.handleSearch(e.target.value)
+      );
+    }
 
     // Initialize filter functionality
     const filterSelect = document.querySelector("#submissionsSection select");
-    filterSelect.addEventListener("change", (e) =>
-      this.handleFilter(e.target.value)
-    );
+    if (filterSelect) {
+      filterSelect.addEventListener("change", (e) =>
+        this.handleFilter(e.target.value)
+      );
+    }
   }
 
-  loadSubmissions() {
-    // In production, this would be an API call
-    const storedSubmissions = session.getItem("submissions");
-    this.submissions = storedSubmissions ? JSON.parse(storedSubmissions) : [];
-    this.renderSubmissions();
-  }
+  async loadSubmissions() {
+    try {
+      const token = sessionStorage.getItem("token");
+      if (!token) {
+        console.error("No authentication token found");
+        return;
+      }
 
-  saveSubmissions() {
-    // In production, this would be an API call
-    session.setItem("submissions", JSON.stringify(this.submissions));
+      const response = await fetch("/api/submissions", {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+
+      if (response.ok) {
+        this.submissions = await response.json();
+        this.renderSubmissions();
+      } else {
+        console.error("Failed to load submissions");
+      }
+    } catch (error) {
+      console.error("Error loading submissions:", error);
+    }
   }
 
   renderSubmissions(submissions = this.submissions) {
     const tbody = document.getElementById("submissionsTableBody");
+    if (!tbody) return;
+    
     tbody.innerHTML = "";
 
     submissions.forEach((submission) => {
@@ -87,7 +108,11 @@ class SubmissionsManager {
   async handleGradeSubmission(event) {
     event.preventDefault();
 
-    if (!auth.checkAuth()) return;
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      console.error("No authentication token found");
+      return;
+    }
 
     const form = event.target;
     const formData = new FormData(form);
@@ -100,34 +125,54 @@ class SubmissionsManager {
         throw new Error("Submission not found");
       }
 
-      submission.grade = formData.get("grade");
-      submission.feedback = formData.get("feedback");
-      submission.status = "graded";
-      submission.gradedAt = new Date().toISOString();
+      const gradeData = {
+        grade: formData.get("grade"),
+        feedback: formData.get("feedback"),
+        status: "graded"
+      };
 
-      // In production, this would be an API call
-      this.saveSubmissions();
-      this.renderSubmissions();
+      const response = await fetch(`/api/submissions/${submissionId}`, {
+        method: "PUT",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(gradeData),
+      });
 
-      // Close modal and reset form
-      const modal = bootstrap.Modal.getInstance(
-        document.getElementById("gradeSubmissionModal")
-      );
-      modal.hide();
-      form.reset();
+      if (response.ok) {
+        await this.loadSubmissions();
 
-      auth.showNotification("Submission graded successfully", "success");
+        // Close modal and reset form
+        const modal = bootstrap.Modal.getInstance(
+          document.getElementById("gradeSubmissionModal")
+        );
+        if (modal) {
+          modal.hide();
+        }
+        form.reset();
+
+        this.showNotification("Submission graded successfully", "success");
+      } else {
+        const errorData = await response.json();
+        this.showNotification(errorData.message || "Failed to grade submission", "error");
+      }
     } catch (error) {
-      auth.showNotification(error.message, "error");
+      console.error("Error grading submission:", error);
+      this.showNotification("Network error while grading submission", "error");
     }
   }
 
   viewSubmission(id) {
-    if (!auth.checkAuth()) return;
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      console.error("No authentication token found");
+      return;
+    }
 
     const submission = this.submissions.find((s) => s.id === id);
     if (!submission) {
-      auth.showNotification("Submission not found", "error");
+      this.showNotification("Submission not found", "error");
       return;
     }
 
@@ -136,11 +181,15 @@ class SubmissionsManager {
   }
 
   gradeSubmission(id) {
-    if (!auth.checkAuth()) return;
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      console.error("No authentication token found");
+      return;
+    }
 
     const submission = this.submissions.find((s) => s.id === id);
     if (!submission) {
-      auth.showNotification("Submission not found", "error");
+      this.showNotification("Submission not found", "error");
       return;
     }
 
@@ -149,21 +198,35 @@ class SubmissionsManager {
   }
 
   async deleteSubmission(id) {
-    if (!auth.checkAuth()) return;
+    const token = sessionStorage.getItem("token");
+    if (!token) {
+      console.error("No authentication token found");
+      return;
+    }
 
     if (!confirm("Are you sure you want to delete this submission?")) {
       return;
     }
 
     try {
-      // In production, this would be an API call
-      this.submissions = this.submissions.filter((s) => s.id !== id);
-      this.saveSubmissions();
-      this.renderSubmissions();
+      const response = await fetch(`/api/submissions/${id}`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
 
-      auth.showNotification("Submission deleted successfully", "success");
+      if (response.ok) {
+        await this.loadSubmissions();
+        this.showNotification("Submission deleted successfully", "success");
+      } else {
+        const errorData = await response.json();
+        this.showNotification(errorData.message || "Failed to delete submission", "error");
+      }
     } catch (error) {
-      auth.showNotification(error.message, "error");
+      console.error("Error deleting submission:", error);
+      this.showNotification("Network error while deleting submission", "error");
     }
   }
 
@@ -217,30 +280,44 @@ class SubmissionsManager {
   }
 
   generateSubmissionId() {
-    // Generate a unique submission ID
-    const timestamp = Date.now().toString(36);
-    const random = Math.random().toString(36).substr(2, 5);
-    return `SUB-${timestamp}-${random}`.toUpperCase();
+    return "SUB" + Date.now() + "-" + Math.random().toString(36).substr(2, 5).toUpperCase();
   }
 
-  // Get submission by ID
   getSubmission(id) {
     return this.submissions.find((s) => s.id === id);
   }
 
-  // Get all submissions
   getAllSubmissions() {
     return this.submissions;
   }
 
-  // Get submissions for a specific student
   getStudentSubmissions(studentId) {
     return this.submissions.filter((s) => s.studentId === studentId);
   }
 
-  // Get submissions for a specific task
   getTaskSubmissions(taskId) {
     return this.submissions.filter((s) => s.taskId === taskId);
+  }
+
+  showNotification(message, type = "info") {
+    // Create notification element
+    const notification = document.createElement("div");
+    notification.className = `alert alert-${type === "error" ? "danger" : type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = "top: 20px; right: 20px; z-index: 9999; min-width: 300px;";
+    notification.innerHTML = `
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+
+    // Add to page
+    document.body.appendChild(notification);
+
+    // Auto remove after 5 seconds
+    setTimeout(() => {
+      if (notification.parentNode) {
+        notification.remove();
+      }
+    }, 5000);
   }
 }
 

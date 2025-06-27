@@ -266,9 +266,14 @@
                 <i class="fas fa-plus"></i>
                 <span>Add Task</span>
               </button>
-              <button class="action-card" onclick="attendance.openAttendance()">
-                <i class="fas fa-door-open"></i>
-                <span>Open Attendance</span>
+              <button class="action-card" id="openAttendanceBtn">
+                <div class="action-icon">
+                  <i class="fas fa-door-open"></i>
+                </div>
+                <div class="action-content">
+                  <h4>Open Attendance</h4>
+                  <p>Start attendance session</p>
+                </div>
               </button>
               <button
                 class="action-card"
@@ -839,25 +844,32 @@
               <p>Track student attendance and manage sessions</p>
             </div>
             <div class="header-actions">
-              <button
-                class="btn btn-primary modern-btn"
-                id="generateTokenBtn"
-                onclick="attendanceTokenManager.generateToken()"
-              >
-                <i class="fas fa-key"></i> Generate Token
+              <button class="action-card" id="generateTokenBtn">
+                <div class="action-icon">
+                  <i class="fas fa-key"></i>
+                </div>
+                <div class="action-content">
+                  <h4>Generate Token</h4>
+                  <p>Create daily attendance token</p>
+                </div>
               </button>
-              <button
-                class="btn btn-success modern-btn"
-                onclick="attendance.openAttendance()"
-              >
-                <i class="fas fa-door-open"></i> Open Attendance
+              <button class="action-card" id="openAttendanceSessionBtn">
+                <div class="action-icon">
+                  <i class="fas fa-clock"></i>
+                </div>
+                <div class="action-content">
+                  <h4>Open Session</h4>
+                  <p>Start attendance marking</p>
+                </div>
               </button>
-              <button
-                class="btn btn-danger modern-btn"
-                id="finishAttendanceBtn"
-                onclick="attendanceTokenManager.finishAttendance()"
-              >
-                <i class="fas fa-door-closed"></i> Finish Attendance
+              <button class="action-card" id="finishAttendanceBtn">
+                <div class="action-icon">
+                  <i class="fas fa-flag-checkered"></i>
+                </div>
+                <div class="action-content">
+                  <h4>Finish Training</h4>
+                  <p>End training session</p>
+                </div>
               </button>
             </div>
           </div>
