@@ -154,6 +154,9 @@ class TasksManager {
                 return;
             }
 
+            // Log the request data for debugging
+            console.log('Sending task data:', taskData);
+
             const response = await fetch(this.apiBaseUrl, {
                 method: 'POST',
                 headers: {
@@ -163,32 +166,55 @@ class TasksManager {
                 body: JSON.stringify(taskData)
             });
 
+            // Log response details for debugging
+            console.log('Response status:', response.status);
+            console.log('Response headers:', [...response.headers.entries()]);
+
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            const isJson = contentType && contentType.includes('application/json');
+
             if (response.ok) {
-                const newTask = await response.json();
-                
-                // Add to local array
-                this.tasks.push(newTask);
-                this.displayTasks();
-                this.updateTaskStats();
-                
-                // Close modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('addTaskModal'));
-                if (modal) {
-                    modal.hide();
-                }
-                
-                // Reset form
-                event.target.reset();
-                
-                // Show success message
-                this.showNotification('Task created successfully!', 'success');
-                
-                // Send WebSocket notification
-                if (window.ws) {
-                    window.ws.send(JSON.stringify({
-                        type: 'task_created',
-                        data: newTask
-                    }));
+                if (isJson) {
+                    const newTask = await response.json();
+                    console.log('Received task data:', newTask);
+                    
+                    // Add to local array
+                    this.tasks.push(newTask);
+                    this.displayTasks();
+                    this.updateTaskStats();
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addTaskModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
+                    
+                    // Reset form
+                    event.target.reset();
+                    
+                    // Show success message
+                    this.showNotification('Task created successfully!', 'success');
+                    
+                    // Send WebSocket notification
+                    if (window.ws) {
+                        window.ws.send(JSON.stringify({
+                            type: 'task_created',
+                            data: newTask
+                        }));
+                    }
+                } else {
+                    // Handle non-JSON success response
+                    const responseText = await response.text();
+                    console.warn('Non-JSON success response:', responseText);
+                    this.showNotification('Task created successfully!', 'success');
+                    
+                    // Close modal and reset form
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('addTaskModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
+                    event.target.reset();
                 }
             } else if (response.status === 401) {
                 this.showNotification('Please login again', 'error');
@@ -196,8 +222,15 @@ class TasksManager {
             } else if (response.status === 403) {
                 this.showNotification('Admin access required', 'error');
             } else {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to create task');
+                // Handle error responses
+                if (isJson) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to create task');
+                } else {
+                    const errorText = await response.text();
+                    console.error('Error response text:', errorText);
+                    throw new Error(`Server error: ${response.status} - ${errorText || 'Unknown error'}`);
+                }
             }
         } catch (error) {
             console.error('Error creating task:', error);
@@ -237,6 +270,9 @@ class TasksManager {
                 return;
             }
 
+            // Log the request data for debugging
+            console.log('Updating task data:', { taskId, taskData });
+
             const response = await fetch(`${this.apiBaseUrl}/${taskId}`, {
                 method: 'PUT',
                 headers: {
@@ -246,33 +282,55 @@ class TasksManager {
                 body: JSON.stringify(taskData)
             });
 
+            // Log response details for debugging
+            console.log('Response status:', response.status);
+            console.log('Response headers:', [...response.headers.entries()]);
+
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            const isJson = contentType && contentType.includes('application/json');
+
             if (response.ok) {
-                const updatedTask = await response.json();
-                
-                // Update task in local array
-                const taskIndex = this.tasks.findIndex(t => t.id === taskId);
-                if (taskIndex !== -1) {
-                    this.tasks[taskIndex] = updatedTask;
-                }
-                
-                this.displayTasks();
-                this.updateTaskStats();
-                
-                // Close modal
-                const modal = bootstrap.Modal.getInstance(document.getElementById('editTaskModal'));
-                if (modal) {
-                    modal.hide();
-                }
-                
-                // Show success message
-                this.showNotification('Task updated successfully!', 'success');
-                
-                // Send WebSocket notification
-                if (window.ws) {
-                    window.ws.send(JSON.stringify({
-                        type: 'task_updated',
-                        data: updatedTask
-                    }));
+                if (isJson) {
+                    const updatedTask = await response.json();
+                    console.log('Received updated task data:', updatedTask);
+                    
+                    // Update task in local array
+                    const taskIndex = this.tasks.findIndex(t => t.id === taskId);
+                    if (taskIndex !== -1) {
+                        this.tasks[taskIndex] = updatedTask;
+                    }
+                    
+                    this.displayTasks();
+                    this.updateTaskStats();
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editTaskModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
+                    
+                    // Show success message
+                    this.showNotification('Task updated successfully!', 'success');
+                    
+                    // Send WebSocket notification
+                    if (window.ws) {
+                        window.ws.send(JSON.stringify({
+                            type: 'task_updated',
+                            data: updatedTask
+                        }));
+                    }
+                } else {
+                    // Handle non-JSON success response
+                    const responseText = await response.text();
+                    console.warn('Non-JSON success response:', responseText);
+                    this.showNotification('Task updated successfully!', 'success');
+                    
+                    // Close modal
+                    const modal = bootstrap.Modal.getInstance(document.getElementById('editTaskModal'));
+                    if (modal) {
+                        modal.hide();
+                    }
                 }
             } else if (response.status === 401) {
                 this.showNotification('Please login again', 'error');
@@ -282,8 +340,15 @@ class TasksManager {
             } else if (response.status === 404) {
                 this.showNotification('Task not found', 'error');
             } else {
-                const errorData = await response.json();
-                throw new Error(errorData.message || 'Failed to update task');
+                // Handle error responses
+                if (isJson) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to update task');
+                } else {
+                    const errorText = await response.text();
+                    console.error('Error response text:', errorText);
+                    throw new Error(`Server error: ${response.status} - ${errorText || 'Unknown error'}`);
+                }
             }
         } catch (error) {
             console.error('Error updating task:', error);
