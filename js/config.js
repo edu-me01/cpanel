@@ -3,14 +3,14 @@ const config = {
   // Server configuration
   server: {
     host: 'localhost',
-    port: 5000,
+    port: 80,
     protocol: 'http'
   },
 
   // API endpoints
   api: {
     baseUrl: '/api',
-    auth: '/login',
+    auth: '/api/login',
     tasks: '/api/tasks',
     students: '/api/students',
     attendance: '/api/attendance',
@@ -19,6 +19,7 @@ const config = {
 
   // WebSocket configuration
   websocket: {
+    enabled: false,
     url: 'ws://localhost:5000',
     reconnectInterval: 5000,
     maxReconnectAttempts: 5
@@ -74,7 +75,7 @@ const apiHelpers = {
 
   // Get WebSocket URL
   getWebSocketUrl: () => {
-    return config.websocket.url;
+    return config.websocket.enabled ? config.websocket.url : null;
   },
 
   // Get auth headers
@@ -107,6 +108,32 @@ const apiHelpers = {
     sessionStorage.removeItem(config.auth.tokenKey);
     sessionStorage.removeItem(config.auth.userTypeKey);
     sessionStorage.removeItem(config.auth.userDataKey);
+  },
+
+  // Make API request
+  makeRequest: async (endpoint, options = {}) => {
+    const url = apiHelpers.getApiUrl(endpoint);
+    const headers = apiHelpers.getAuthHeaders();
+    
+    const defaultOptions = {
+      method: 'GET',
+      headers: headers,
+      ...options
+    };
+
+    try {
+      const response = await fetch(url, defaultOptions);
+      const data = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(data.message || 'API request failed');
+      }
+      
+      return data;
+    } catch (error) {
+      console.error('API request error:', error);
+      throw error;
+    }
   }
 };
 

@@ -476,6 +476,17 @@
           <li class="nav-item">
             <a
               class="nav-link"
+              id="lectures-tab"
+              data-bs-toggle="tab"
+              href="#lectures"
+              role="tab"
+            >
+              <i class="fas fa-book me-2"></i>Lectures
+            </a>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
               id="attendance-tab"
               data-bs-toggle="tab"
               href="#attendance"
@@ -739,6 +750,58 @@
                       </li>
                     </ul>
                   </nav>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Lectures Tab -->
+          <div class="tab-pane fade" id="lectures" role="tabpanel">
+            <div class="card">
+              <div class="card-body">
+                <div class="row mb-4">
+                  <div class="col-md-8">
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-0">
+                        <i class="fas fa-search text-muted"></i>
+                      </span>
+                      <input
+                        type="text"
+                        class="form-control border-0 bg-light"
+                        placeholder="Search lectures..."
+                        id="studentLectureSearch"
+                      />
+                    </div>
+                  </div>
+                  <div class="col-md-4">
+                    <select class="form-select bg-light border-0" id="studentLectureFilter">
+                      <option value="all">All Categories</option>
+                      <option value="web-development">Web Development</option>
+                      <option value="programming">Programming</option>
+                      <option value="design">Design</option>
+                    </select>
+                  </div>
+                </div>
+                
+                <div id="lecturesContainer">
+                  <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                      <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2">Loading lectures...</p>
+                  </div>
+                </div>
+                
+                <!-- Access Denied Message -->
+                <div id="accessDeniedMessage" style="display: none;">
+                  <div class="text-center py-5">
+                    <i class="fas fa-lock fa-3x text-warning mb-3"></i>
+                    <h5 class="text-warning">Access Denied</h5>
+                    <p class="text-muted">You must attend today's session before accessing lectures.</p>
+                    <a href="attendance.html" class="btn btn-primary btn-modern">
+                      <i class="fas fa-clock me-2"></i>Mark Attendance
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1032,6 +1095,8 @@
     <script src="js/auth.js" defer></script>
     <script src="js/realtime-updates.js" defer></script>
     <script src="js/student-dashboard.js" defer></script>
+    <script src="js/lectures.js" defer></script>
+    <script src="js/feedback.js" defer></script>
 
     <script>
       // Initialize student dashboard

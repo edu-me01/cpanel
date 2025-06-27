@@ -5,7 +5,7 @@ class Auth {
     this.token = null;
     this.userType = null;
     this.userData = null;
-    this.apiBaseUrl = '/login';
+    this.apiBaseUrl = '/api/login'; // Updated to use PHP API
     this.init();
   }
 
@@ -155,7 +155,7 @@ class Auth {
         userType = "admin";
       }
 
-      // Send login request to backend
+      // Send login request to PHP backend
       const response = await fetch(this.apiBaseUrl, {
         method: 'POST',
         headers: {
@@ -168,41 +168,36 @@ class Auth {
         })
       });
 
-      if (response.ok) {
-        const data = await response.json();
+      const data = await response.json();
+      
+      if (response.ok && data.success) {
+        // Login successful
+        this.token = data.token;
+        this.userType = data.userType;
         
-        if (data.success) {
-          // Login successful
-          this.token = data.token;
-          this.userType = data.userType;
-          
-          // Create user data object
-          this.userData = {
-            id: data.userType === 'admin' ? 'admin' : email,
-            name: data.userType === 'admin' ? 'Admin' : email.split('@')[0],
-            email: email,
-            type: data.userType
-          };
-          
-          this.isAuthenticated = true;
+        // Use user data from PHP response
+        this.userData = {
+          id: data.user.id,
+          name: data.user.name,
+          email: data.user.email,
+          type: data.user.userType
+        };
+        
+        this.isAuthenticated = true;
 
-          // Store in sessionStorage
-          sessionStorage.setItem("token", this.token);
-          sessionStorage.setItem("userType", this.userType);
-          sessionStorage.setItem("userData", JSON.stringify(this.userData));
+        // Store in sessionStorage
+        sessionStorage.setItem("token", this.token);
+        sessionStorage.setItem("userType", this.userType);
+        sessionStorage.setItem("userData", JSON.stringify(this.userData));
 
-          this.showDashboard();
-          this.showNotification(`Welcome back, ${this.userData.name}!`, "success");
-        } else {
-          this.showNotification(data.message || "Login failed", "error");
-        }
+        this.showDashboard();
+        this.showNotification(`Welcome back, ${this.userData.name}!`, "success");
       } else {
-        const errorData = await response.json();
-        this.showNotification(errorData.message || "Login failed", "error");
+        this.showNotification(data.message || "Login failed", "error");
       }
     } catch (error) {
       console.error("Login error:", error);
-      this.showNotification("Network error during login", "error");
+      this.showNotification("Login failed. Please try again.", "error");
     }
   }
 
@@ -212,36 +207,33 @@ class Auth {
     sessionStorage.removeItem("userType");
     sessionStorage.removeItem("userData");
 
-    // Reset auth state
-    this.isAuthenticated = false;
+    // Reset instance variables
     this.token = null;
     this.userType = null;
     this.userData = null;
+    this.isAuthenticated = false;
 
-    // Redirect to login page
-    window.location.href = "index.html";
+    // Show login modal
+    this.showLoginModal();
+
+    // Show logout notification
+    this.showNotification("You have been logged out", "info");
   }
 
   checkAuth() {
-    const token = sessionStorage.getItem("token");
-    const userType = sessionStorage.getItem("userType");
-    const userData = sessionStorage.getItem("userData");
-
-    if (token && userType && userData) {
-      this.token = token;
-      this.userType = userType;
-      this.userData = JSON.parse(userData);
-      this.isAuthenticated = true;
-      return true;
+    if (!this.isAuthenticated) {
+      this.showLoginModal();
+      return false;
     }
-    return false;
+    return true;
   }
 
   checkAdminAuth() {
-    if (!this.checkAuth()) {
+    if (!this.checkAuth() || this.userType !== "admin") {
+      this.showNotification("Admin access required", "error");
       return false;
     }
-    return this.userType === "admin";
+    return true;
   }
 
   reloadSession() {
@@ -266,44 +258,31 @@ class Auth {
   }
 
   generateToken() {
-    // Generate a simple token for demo purposes
-    // In production, this should be handled by the backend
-    return 'token_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    return this.token;
   }
 
   showNotification(message, type = "info") {
     // Create notification element
-    const notification = document.createElement('div');
-    notification.className = `alert alert-${type === 'error' ? 'danger' : type} alert-dismissible fade show position-fixed`;
-    notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px; max-width: 400px;';
+    const notification = document.createElement("div");
+    notification.className = `alert alert-${type === "error" ? "danger" : type} alert-dismissible fade show position-fixed`;
+    notification.style.cssText = "top: 20px; right: 20px; z-index: 9999; min-width: 300px;";
     notification.innerHTML = `
-        <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-triangle' : 'info-circle'} me-2"></i>
-        ${message}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      ${message}
+      <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     `;
-    
+
+    // Add to page
     document.body.appendChild(notification);
-    
+
     // Auto remove after 5 seconds
     setTimeout(() => {
       if (notification.parentNode) {
-        notification.parentNode.removeChild(notification);
+        notification.remove();
       }
     }, 5000);
   }
 }
 
-// Initialize auth
-let auth;
-document.addEventListener("DOMContentLoaded", () => {
-  auth = new Auth();
-});
-
-// Global auth functions
-window.auth = {
-  checkAuth: () => auth?.checkAuth(),
-  checkAdminAuth: () => auth?.checkAdminAuth(),
-  getCurrentUser: () => auth?.getCurrentUser(),
-  getUserType: () => auth?.getUserType(),
-  logout: () => auth?.handleLogout()
-};
+// Initialize authentication
+const auth = new Auth();
+window.auth = auth;

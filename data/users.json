@@ -1,0 +1,18 @@
+[
+    {
+        "id": "admin_1",
+        "email": "admin@school.com",
+        "password": "$2y$10$QbHsSCmOvc9bhHKoKYQK7OsudNB9PNr4siw\/lDEVywn2x1RrSNaWu",
+        "userType": "admin",
+        "name": "Administrator",
+        "createdAt": "2025-06-27T11:39:20+00:00"
+    },
+    {
+        "id": "student_1",
+        "email": "student@school.com",
+        "password": "$2y$10$A\/JHGSWMLAu.eaLNm3JVReUZ7\/6zKcQKtf6Z8KYdHuePa1Q6ApH7.",
+        "userType": "student",
+        "name": "Demo Student",
+        "createdAt": "2025-06-27T11:39:20+00:00"
+    }
+]
