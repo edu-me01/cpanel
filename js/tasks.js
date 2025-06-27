@@ -103,18 +103,44 @@ class TasksManager {
                 }
             });
 
+            // Log response details for debugging
+            console.log('Load tasks response status:', response.status);
+            console.log('Load tasks response headers:', [...response.headers.entries()]);
+
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            const isJson = contentType && contentType.includes('application/json');
+
             if (response.ok) {
-                this.tasks = await response.json();
-                this.displayTasks();
-                this.updateTaskStats();
+                if (isJson) {
+                    this.tasks = await response.json();
+                    console.log('Loaded tasks:', this.tasks);
+                    this.displayTasks();
+                    this.updateTaskStats();
+                } else {
+                    // Handle non-JSON success response
+                    const responseText = await response.text();
+                    console.warn('Non-JSON success response for loadTasks:', responseText);
+                    this.tasks = [];
+                    this.displayTasks();
+                    this.updateTaskStats();
+                }
             } else if (response.status === 401) {
                 console.error('Authentication failed');
                 this.showNotification('Please login again', 'error');
                 // Redirect to login
                 window.location.href = 'index.html';
             } else {
-                console.error('Failed to load tasks from server:', response.status);
-                this.showNotification('Failed to load tasks', 'error');
+                // Handle error responses
+                if (isJson) {
+                    const errorData = await response.json();
+                    console.error('Failed to load tasks from server:', errorData);
+                    this.showNotification(errorData.message || 'Failed to load tasks', 'error');
+                } else {
+                    const errorText = await response.text();
+                    console.error('Failed to load tasks from server:', response.status, errorText);
+                    this.showNotification('Failed to load tasks', 'error');
+                }
             }
         } catch (error) {
             console.error('Error loading tasks:', error);
@@ -664,29 +690,53 @@ class TasksManager {
                 })
             });
 
+            // Log response details for debugging
+            console.log('Mark complete response status:', response.status);
+            console.log('Mark complete response headers:', [...response.headers.entries()]);
+
+            // Check if response is JSON
+            const contentType = response.headers.get('content-type');
+            const isJson = contentType && contentType.includes('application/json');
+
             if (response.ok) {
-                const updatedTask = await response.json();
-                
-                // Update task in local array
-                const taskIndex = this.tasks.findIndex(t => t.id === taskId);
-                if (taskIndex !== -1) {
-                    this.tasks[taskIndex] = updatedTask;
+                if (isJson) {
+                    const updatedTask = await response.json();
+                    console.log('Received updated task data:', updatedTask);
+                    
+                    // Update task in local array
+                    const taskIndex = this.tasks.findIndex(t => t.id === taskId);
+                    if (taskIndex !== -1) {
+                        this.tasks[taskIndex] = updatedTask;
+                    }
+                    
+                    this.displayTasks();
+                    this.updateTaskStats();
+                    this.showNotification('Task marked as completed!', 'success');
+                } else {
+                    // Handle non-JSON success response
+                    const responseText = await response.text();
+                    console.warn('Non-JSON success response for markTaskComplete:', responseText);
+                    this.showNotification('Task marked as completed!', 'success');
                 }
-                
-                this.displayTasks();
-                this.updateTaskStats();
-                this.showNotification('Task marked as completed!', 'success');
             } else if (response.status === 401) {
                 this.showNotification('Please login again', 'error');
                 window.location.href = 'index.html';
             } else if (response.status === 404) {
                 this.showNotification('Task not found', 'error');
             } else {
-                throw new Error('Failed to complete task');
+                // Handle error responses
+                if (isJson) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'Failed to complete task');
+                } else {
+                    const errorText = await response.text();
+                    console.error('Error response text:', errorText);
+                    throw new Error(`Server error: ${response.status} - ${errorText || 'Unknown error'}`);
+                }
             }
         } catch (error) {
             console.error('Error completing task:', error);
-            this.showNotification('Failed to complete task', 'error');
+            this.showNotification(error.message || 'Failed to complete task', 'error');
         }
     }
 
