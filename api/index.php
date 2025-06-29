@@ -35,279 +35,253 @@ $input = json_decode(file_get_contents('php://input'), true);
 
 // Route the request
 try {
-    switch ($path) {
-        case '/login':
-            if ($method === 'POST') {
-                $response = AuthHandler::login($input);
-            } else {
-                throw new Exception('Method not allowed', 405);
+    $response = null;
+    
+    // Simple path matching first
+    if ($path === '/login') {
+        if ($method === 'POST') {
+            $response = AuthHandler::login($input);
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/tasks') {
+        if ($method === 'GET') {
+            $response = TaskHandler::getTasks($_GET);
+        } elseif ($method === 'POST') {
+            $response = TaskHandler::createTask($input);
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/students') {
+        if ($method === 'GET') {
+            $response = StudentHandler::getStudents($_GET);
+        } elseif ($method === 'POST') {
+            $response = StudentHandler::createStudent($input);
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/attendance') {
+        if ($method === 'GET') {
+            $response = AttendanceHandler::getAttendance($_GET);
+        } elseif ($method === 'POST') {
+            $response = AttendanceHandler::createAttendance($input);
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/submissions') {
+        if ($method === 'GET') {
+            $response = SubmissionHandler::getSubmissions($_GET);
+        } elseif ($method === 'POST') {
+            $response = SubmissionHandler::createSubmission($input);
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/attendance-token/generate') {
+        if ($method === 'POST') {
+            $response = AttendanceTokenHandler::generateAttendanceToken();
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/attendance-token/finish') {
+        if ($method === 'POST') {
+            $response = AttendanceTokenHandler::finishAttendanceToken();
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/attendance-token/status') {
+        if ($method === 'GET') {
+            $response = AttendanceTokenHandler::getAttendanceTokenStatus();
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/attendance-token/validate') {
+        if ($method === 'POST') {
+            if (!isset($input['token'])) {
+                throw new Exception('Token is required', 400);
             }
-            break;
-
-        case '/tasks':
-            if ($method === 'GET') {
-                $response = TaskHandler::getTasks($_GET);
-            } elseif ($method === 'POST') {
-                $response = TaskHandler::createTask($input);
-            } else {
-                throw new Exception('Method not allowed', 405);
+            $response = AttendanceTokenHandler::validateAttendanceToken($input['token']);
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/attendance-token/use') {
+        if ($method === 'POST') {
+            if (!isset($input['token']) || !isset($input['studentId'])) {
+                throw new Exception('Token and studentId are required', 400);
             }
-            break;
-
-        case (preg_match('/^\/tasks\/(.+)$/', $path, $matches) ? true : false):
-            $taskId = $matches[1];
-            if ($method === 'PUT') {
-                if (strpos($path, '/complete') !== false) {
-                    $response = TaskHandler::completeTask($taskId, $input);
-                } else {
-                    $response = TaskHandler::updateTask($taskId, $input);
-                }
-            } elseif ($method === 'DELETE') {
-                $response = TaskHandler::deleteTask($taskId);
+            $response = AttendanceTokenHandler::markTokenAsUsed($input['token'], $input['studentId']);
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/lectures') {
+        if ($method === 'GET') {
+            $response = LectureHandler::getLectures($_GET);
+        } elseif ($method === 'POST') {
+            $response = LectureHandler::createLecture($input);
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/lectures/today') {
+        if ($method === 'GET') {
+            $response = LectureHandler::getTodayLectures();
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/lectures/yesterday') {
+        if ($method === 'GET') {
+            $response = LectureHandler::getPreviousDayLectures();
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/lectures/categories') {
+        if ($method === 'GET') {
+            $response = LectureHandler::getLectureCategories();
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/feedbacks') {
+        if ($method === 'GET') {
+            $response = FeedbackHandler::getFeedbacks($_GET);
+        } elseif ($method === 'POST') {
+            $response = FeedbackHandler::createFeedback($input);
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/feedbacks/questions') {
+        if ($method === 'GET') {
+            $type = $_GET['type'] ?? 'daily';
+            $response = FeedbackHandler::getFeedbackQuestions($type);
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/feedbacks/stats') {
+        if ($method === 'GET') {
+            $type = $_GET['type'] ?? null;
+            $response = FeedbackHandler::getFeedbackStats($type);
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/feedbacks/check-daily') {
+        if ($method === 'GET') {
+            $user = Auth::getCurrentUser();
+            $response = ['required' => FeedbackHandler::checkDailyFeedbackRequired($user['user_id'])];
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/feedbacks/check-final') {
+        if ($method === 'GET') {
+            $user = Auth::getCurrentUser();
+            $response = ['required' => FeedbackHandler::checkFinalFeedbackRequired($user['user_id'])];
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif ($path === '/health') {
+        if ($method === 'GET') {
+            $response = [
+                'status' => 'OK',
+                'timestamp' => date('c'),
+                'data' => [
+                    'tasks' => TaskHandler::getCount(),
+                    'students' => StudentHandler::getCount(),
+                    'attendance' => AttendanceHandler::getCount(),
+                    'submissions' => SubmissionHandler::getCount(),
+                    'lectures' => LectureHandler::getCount(),
+                    'feedbacks' => FeedbackHandler::getCount()
+                ]
+            ];
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    // Regex pattern matching for dynamic routes
+    elseif (preg_match('/^\/tasks\/(.+)$/', $path, $matches)) {
+        $taskId = $matches[1];
+        if ($method === 'PUT') {
+            if (strpos($path, '/complete') !== false) {
+                $response = TaskHandler::completeTask($taskId, $input);
             } else {
-                throw new Exception('Method not allowed', 405);
+                $response = TaskHandler::updateTask($taskId, $input);
             }
-            break;
-
-        case '/students':
-            if ($method === 'GET') {
-                $response = StudentHandler::getStudents($_GET);
-            } elseif ($method === 'POST') {
-                $response = StudentHandler::createStudent($input);
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case (preg_match('/^\/students\/(.+)$/', $path, $matches) ? true : false):
-            $studentId = $matches[1];
-            if ($method === 'PUT') {
-                $response = StudentHandler::updateStudent($studentId, $input);
-            } elseif ($method === 'DELETE') {
-                $response = StudentHandler::deleteStudent($studentId);
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case '/attendance':
-            if ($method === 'GET') {
-                $response = AttendanceHandler::getAttendance($_GET);
-            } elseif ($method === 'POST') {
-                $response = AttendanceHandler::createAttendance($input);
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case (preg_match('/^\/attendance\/(.+)$/', $path, $matches) ? true : false):
-            $attendanceId = $matches[1];
-            if ($method === 'PUT') {
-                $response = AttendanceHandler::updateAttendance($attendanceId, $input);
-            } elseif ($method === 'DELETE') {
-                $response = AttendanceHandler::deleteAttendance($attendanceId);
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case '/submissions':
-            if ($method === 'GET') {
-                $response = SubmissionHandler::getSubmissions($_GET);
-            } elseif ($method === 'POST') {
-                $response = SubmissionHandler::createSubmission($input);
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case (preg_match('/^\/submissions\/(.+)$/', $path, $matches) ? true : false):
-            $submissionId = $matches[1];
-            if ($method === 'PUT') {
-                $response = SubmissionHandler::updateSubmission($submissionId, $input);
-            } elseif ($method === 'DELETE') {
-                $response = SubmissionHandler::deleteSubmission($submissionId);
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        // Attendance Token Management
-        case '/attendance-token/generate':
-            if ($method === 'POST') {
-                $response = AttendanceTokenHandler::generateAttendanceToken();
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case '/attendance-token/finish':
-            if ($method === 'POST') {
-                $response = AttendanceTokenHandler::finishAttendanceToken();
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case '/attendance-token/status':
-            if ($method === 'GET') {
-                $response = AttendanceTokenHandler::getAttendanceTokenStatus();
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case '/attendance-token/validate':
-            if ($method === 'POST') {
-                if (!isset($input['token'])) {
-                    throw new Exception('Token is required', 400);
-                }
-                $response = AttendanceTokenHandler::validateAttendanceToken($input['token']);
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case '/attendance-token/use':
-            if ($method === 'POST') {
-                if (!isset($input['token']) || !isset($input['studentId'])) {
-                    throw new Exception('Token and studentId are required', 400);
-                }
-                $response = AttendanceTokenHandler::markTokenAsUsed($input['token'], $input['studentId']);
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        // Lecture Management
-        case '/lectures':
-            if ($method === 'GET') {
-                $response = LectureHandler::getLectures($_GET);
-            } elseif ($method === 'POST') {
-                $response = LectureHandler::createLecture($input);
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case (preg_match('/^\/lectures\/(.+)$/', $path, $matches) ? true : false):
-            $lectureId = $matches[1];
-            if ($method === 'GET') {
-                $response = LectureHandler::getLectureById($lectureId);
-            } elseif ($method === 'PUT') {
-                $response = LectureHandler::updateLecture($lectureId, $input);
-            } elseif ($method === 'DELETE') {
-                $response = LectureHandler::deleteLecture($lectureId);
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case '/lectures/today':
-            if ($method === 'GET') {
-                $response = LectureHandler::getTodayLectures();
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case '/lectures/yesterday':
-            if ($method === 'GET') {
-                $response = LectureHandler::getPreviousDayLectures();
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case '/lectures/categories':
-            if ($method === 'GET') {
-                $response = LectureHandler::getLectureCategories();
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        // Feedback Management
-        case '/feedbacks':
-            if ($method === 'GET') {
-                $response = FeedbackHandler::getFeedbacks($_GET);
-            } elseif ($method === 'POST') {
-                $response = FeedbackHandler::createFeedback($input);
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case (preg_match('/^\/feedbacks\/(.+)$/', $path, $matches) ? true : false):
-            $feedbackId = $matches[1];
-            if ($method === 'GET') {
-                $response = FeedbackHandler::getFeedbackById($feedbackId);
-            } elseif ($method === 'PUT') {
-                $response = FeedbackHandler::updateFeedback($feedbackId, $input);
-            } elseif ($method === 'DELETE') {
-                $response = FeedbackHandler::deleteFeedback($feedbackId);
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case '/feedbacks/questions':
-            if ($method === 'GET') {
-                $type = $_GET['type'] ?? 'daily';
-                $response = FeedbackHandler::getFeedbackQuestions($type);
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case '/feedbacks/stats':
-            if ($method === 'GET') {
-                $type = $_GET['type'] ?? null;
-                $response = FeedbackHandler::getFeedbackStats($type);
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case '/feedbacks/check-daily':
-            if ($method === 'GET') {
-                $user = Auth::getCurrentUser();
-                $response = ['required' => FeedbackHandler::checkDailyFeedbackRequired($user['user_id'])];
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case '/feedbacks/check-final':
-            if ($method === 'GET') {
-                $user = Auth::getCurrentUser();
-                $response = ['required' => FeedbackHandler::checkFinalFeedbackRequired($user['user_id'])];
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        case '/health':
-            if ($method === 'GET') {
-                $response = [
-                    'status' => 'OK',
-                    'timestamp' => date('c'),
-                    'data' => [
-                        'tasks' => TaskHandler::getCount(),
-                        'students' => StudentHandler::getCount(),
-                        'attendance' => AttendanceHandler::getCount(),
-                        'submissions' => SubmissionHandler::getCount(),
-                        'lectures' => LectureHandler::getCount(),
-                        'feedbacks' => FeedbackHandler::getCount()
-                    ]
-                ];
-            } else {
-                throw new Exception('Method not allowed', 405);
-            }
-            break;
-
-        default:
-            throw new Exception('Endpoint not found', 404);
+        } elseif ($method === 'DELETE') {
+            $response = TaskHandler::deleteTask($taskId);
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif (preg_match('/^\/students\/(.+)$/', $path, $matches)) {
+        $studentId = $matches[1];
+        if ($method === 'PUT') {
+            $response = StudentHandler::updateStudent($studentId, $input);
+        } elseif ($method === 'DELETE') {
+            $response = StudentHandler::deleteStudent($studentId);
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif (preg_match('/^\/attendance\/(.+)$/', $path, $matches)) {
+        $attendanceId = $matches[1];
+        if ($method === 'PUT') {
+            $response = AttendanceHandler::updateAttendance($attendanceId, $input);
+        } elseif ($method === 'DELETE') {
+            $response = AttendanceHandler::deleteAttendance($attendanceId);
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif (preg_match('/^\/submissions\/(.+)$/', $path, $matches)) {
+        $submissionId = $matches[1];
+        if ($method === 'PUT') {
+            $response = SubmissionHandler::updateSubmission($submissionId, $input);
+        } elseif ($method === 'DELETE') {
+            $response = SubmissionHandler::deleteSubmission($submissionId);
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif (preg_match('/^\/lectures\/(.+)$/', $path, $matches)) {
+        $lectureId = $matches[1];
+        if ($method === 'GET') {
+            $response = LectureHandler::getLectureById($lectureId);
+        } elseif ($method === 'PUT') {
+            $response = LectureHandler::updateLecture($lectureId, $input);
+        } elseif ($method === 'DELETE') {
+            $response = LectureHandler::deleteLecture($lectureId);
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    elseif (preg_match('/^\/feedbacks\/(.+)$/', $path, $matches)) {
+        $feedbackId = $matches[1];
+        if ($method === 'GET') {
+            $response = FeedbackHandler::getFeedbackById($feedbackId);
+        } elseif ($method === 'PUT') {
+            $response = FeedbackHandler::updateFeedback($feedbackId, $input);
+        } elseif ($method === 'DELETE') {
+            $response = FeedbackHandler::deleteFeedback($feedbackId);
+        } else {
+            throw new Exception('Method not allowed', 405);
+        }
+    }
+    else {
+        throw new Exception('Endpoint not found: ' . $path, 404);
     }
 
     echo json_encode($response);

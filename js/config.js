@@ -3,7 +3,7 @@ const config = {
   // Server configuration
   server: {
     host: 'localhost',
-    port: 80,
+    port: 8000,
     protocol: 'http'
   },
 

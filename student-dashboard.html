@@ -1091,6 +1091,12 @@
     <!-- Bootstrap Bundle with Popper -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 
+    <!-- Session Storage Alias -->
+    <script>
+      // Define session alias for consistency across all files
+      const session = sessionStorage;
+    </script>
+
     <!-- Custom JavaScript -->
     <script src="js/auth.js" defer></script>
     <script src="js/realtime-updates.js" defer></script>
@@ -1100,10 +1106,10 @@
 
     <script>
       // Initialize student dashboard
-      let studentDashboard;
+      let studentDashboardInstance;
 
       document.addEventListener("DOMContentLoaded", function () {
-        studentDashboard = new StudentDashboard();
+        studentDashboardInstance = new StudentDashboard();
       });
 
       // Logout function
@@ -1118,18 +1124,18 @@
       // Global function for student dashboard actions
       window.studentDashboard = {
         markAttendance: function (status) {
-          if (studentDashboard) {
-            studentDashboard.markAttendance(status);
+          if (studentDashboardInstance) {
+            studentDashboardInstance.markAttendance(status);
           }
         },
         editProfile: function () {
-          if (studentDashboard) {
-            studentDashboard.editProfile();
+          if (studentDashboardInstance) {
+            studentDashboardInstance.editProfile();
           }
         },
         saveProfile: function () {
-          if (studentDashboard) {
-            studentDashboard.saveProfile();
+          if (studentDashboardInstance) {
+            studentDashboardInstance.saveProfile();
           }
         },
         showQuickActions: function () {
