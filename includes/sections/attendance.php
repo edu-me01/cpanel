@@ -1,12 +1,3 @@
-<?php
-// Attendance Section
-if (isAdmin()) {
-    header('Location: admin/attendance.php');
-} else {
-    header('Location: student/attendance.php');
-}
-exit;
-?>
 <div id="attendanceSection" class="section">
     <div class="section-header">
         <div class="header-content">

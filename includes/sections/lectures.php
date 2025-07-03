@@ -1,10 +1,5 @@
-<?php
-// Lectures section content - redirect to student-lectures.php
-if (isAdmin()) {
-    // Admins don't have lectures page, redirect to dashboard
-    header('Location: ?page=dashboard');
-} else {
-    header('Location: student/lectures.php');
-}
-exit;
-?> 
+<!-- Lectures section content would go here if not redirected -->
+<div class="alert alert-info">
+    <i class="fas fa-info-circle me-2"></i>
+    Lectures are handled in the dedicated student section.
+</div> 

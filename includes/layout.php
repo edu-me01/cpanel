@@ -9,6 +9,64 @@ $user = getCurrentUser();
 $isAdmin = isAdmin();
 $userType = $isAdmin ? 'admin' : 'student';
 
+// Handle redirects for specific pages before any output
+if ($currentPage === 'attendance') {
+    if ($isAdmin) {
+        header('Location: admin/attendance.php');
+    } else {
+        header('Location: student/attendance.php');
+    }
+    exit;
+}
+
+if ($currentPage === 'tasks') {
+    if ($isAdmin) {
+        header('Location: admin/tasks.php');
+    } else {
+        header('Location: student/tasks.php');
+    }
+    exit;
+}
+
+if ($currentPage === 'submissions') {
+    if ($isAdmin) {
+        header('Location: admin/submissions.php');
+    } else {
+        header('Location: student/submissions.php');
+    }
+    exit;
+}
+
+if ($currentPage === 'students') {
+    if ($isAdmin) {
+        header('Location: admin/students.php');
+    } else {
+        // Students page is admin-only, redirect to dashboard
+        header('Location: ?page=dashboard');
+    }
+    exit;
+}
+
+if ($currentPage === 'analytics') {
+    if ($isAdmin) {
+        header('Location: admin/analytics.php');
+    } else {
+        // Analytics page is admin-only, redirect to dashboard
+        header('Location: ?page=dashboard');
+    }
+    exit;
+}
+
+if ($currentPage === 'lectures') {
+    if ($isAdmin) {
+        // Lectures page is student-only, redirect to dashboard
+        header('Location: ?page=dashboard');
+    } else {
+        header('Location: student/lectures.php');
+    }
+    exit;
+}
+
 // Get page title
 $pageTitles = [
     'dashboard' => 'Dashboard',

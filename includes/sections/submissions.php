@@ -1,9 +1,5 @@
-<?php
-// Submissions section content - redirect to appropriate page based on user type
-if (isAdmin()) {
-    header('Location: admin/submissions.php');
-} else {
-    header('Location: student/submissions.php');
-}
-exit;
-?> 
+<!-- Submissions section content would go here if not redirected -->
+<div class="alert alert-info">
+    <i class="fas fa-info-circle me-2"></i>
+    Submissions management is handled in the dedicated admin/student sections.
+</div> 
